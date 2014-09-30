@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Docker Image Registry</title>
+    <!-- link rel='stylesheet' href='/stylesheets/style.css'/ -->
+    <!-- Bootstrap core CSS -->
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+</head>
+<body role="document">
+<div class="container">
+    <!-- Static navbar -->
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Docker Image Registry</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/">Images</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="#">About</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div><!--/.container-fluid -->
+    </div>
+
+    <!-- Main component for a primary marketing message or call to action -->
+    <ol class="breadcrumb">
+        <li><a href="/">Images</a></li>
+        <li><a href="#"><%= image.id %></a></li>
+    </ol>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Author</h3>
+                </div>
+                <div class="panel-body">
+                    <%= image.author %>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Information</h3>
+                </div>
+                <!-- Table -->
+                <table class="table">
+                    <tbody>
+                    <tr><td class="col-md-3">OS</td><td><%= image.os %></td></tr>
+                    <tr><td class="col-md-3">Architecture</td><td><%= image.architecture %></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+    <%  if (image.config && !isEmptyObject(image.config.ExposedPorts)) {  %>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Exposed ports</h3>
+                </div>
+                <!-- Table -->
+                <table class="table">
+                    <tbody>
+                    <% for (var port in image.config.ExposedPorts) {
+                        console.log(port)
+                        var portInfo=port.split('/')
+                    %>
+                    <tr><td class="col-md-3"><%= portInfo[0] %></td><td><%= portInfo[1] %></td></tr>
+                    <%
+                    }
+                    %>
+                    </tbody>
+                </table>
+            </div>
+    <% } %>
+        </div>
+        <div class="col-lg-6">
+    <% if (image.config && !isEmptyObject(image.config.Volumes)) { %>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Volumes</h3>
+                </div>
+                <!-- Table -->
+                <table class="table">
+                    <tbody>
+                    <% for (var volume in image.config.Volumes) {
+                    %>
+                    <tr><td><%= volume %></td></tr>
+                    <%
+                    }
+                    %>
+                    </tbody>
+                </table>
+            </div>
+    <% } %>
+        </div>
+    </div>
+    <%
+    if (image.config && !isEmptyArray(image.config.Env)) {
+    %>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Environment variables</h3>
+        </div>
+        <!-- Table -->
+        <table class="table">
+            <tbody>
+            <% image.config.Env.forEach(function(envValue) {
+                var envInfo=envValue.split('=')
+            %>
+            <tr><td class="col-md-3"><%= envInfo[0] %></td><td><%= envInfo[1] %></td></tr>
+            <%
+            })
+            %>
+            </tbody>
+        </table>
+    </div>
+    <%
+    }
+
+    if (!isEmptyArray(layers)) {
+        var flag = true
+        function generateLayers(layers) {
+            if (!isEmptyArray(layers)) {
+                var layer = layers.shift();
+                var oldFlag = flag;
+                var href = (flag)? '#': '/images/' + layer;
+                if (flag) {
+                    %><li class="media"><%
+                    flag = false;
+                } else {
+                    %><div class="media"><%
+                }
+            %>
+                <a class="pull-left" href="<%= href %>">
+                    &nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-right"/>
+                </a>
+                <div class="media-body">
+                    <% if (!oldFlag) { %>
+                        <a href="<%= href %>"><%= layer %></a>
+                    <% } else { %>
+                        <%= layer %><br/>
+                    <% } %>
+                    <% generateLayers(layers); %>
+                </div>
+            <%
+                if (oldFlag) {
+                    %></li><%
+                } else {
+                    %></div><%
+                }
+            }
+        }
+
+    %>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Ancestry layers</h3>
+        </div>
+        <ul class="media-list">
+            <% generateLayers(layers) %>
+        </ul>
+    </div>
+    <%
+    }
+    %>
+</div> <!-- /container -->
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
+
