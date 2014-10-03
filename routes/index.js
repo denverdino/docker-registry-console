@@ -10,49 +10,52 @@ function isEmptyObject(obj) {
 
 /* GET home page. */
 router.get('/', function(req, res) {
-    dockerImageRegistry.listTags().then(function(tags) {
-        var items = [];
-        tags.forEach(function(imageTags) {
-            for (var i = 0, len = imageTags.length; i < len; ++i) {
-                if (imageTags[i].name.startsWith('library')) {
-                    imageTags[i].name = imageTags[i].name.substring('library'.length + 1)
-                }
-                items.push(imageTags[i]);
-            }
-        });
-        //Sort by name and tag
-        items.sort(function (a, b) {
-            var result = 0;
-            if (a.name > b.name) {
-                result = 1;
-            } else if (a.name < b.name) {
-                result = -1;
-            } else if (a.tag > b.tag) {
-                result = 1;
-            } else if (a.tag < b.tag) {
-                result = -1;
-            }
-            return result;
-        });
-        return items;
-    }).then(function (items) {
-        res.render('index', { items: items});
-    })
+    //Get cached data
+    var items = dockerImageRegistry.cachedData.imageTags;
+
+    //Sort by name and tag
+    items.sort(function (a, b) {
+        var result = 0;
+        if (a.displayName > b.displayName) {
+            result = 1;
+        } else if (a.displayName < b.displayName) {
+            result = -1;
+        } else if (a.tag > b.tag) {
+            result = 1;
+        } else if (a.tag < b.tag) {
+            result = -1;
+        }
+        return result;
+    });
+    res.render('index', { items: items});
 });
 
 router.get('/images/:id', function(req, res) {
     dockerImageRegistry.retriveImageDetails(req.params.id).then(function(image) {
         dockerImageRegistry.retriveImageAncestry(req.params.id).then(function (layers) {
+            var layerInfoList = [];
+            layers.forEach(function(layer){
+                var displayName = null;
+                var imageInfo = dockerImageRegistry.cachedData.tagIndex[layer];
+                if (imageInfo) {
+                    displayName = imageInfo.name + ':' + imageInfo.tag;
+                }
+                layerInfoList.push({id: layer, displayName: displayName})
+            });
             res.render('image', {
                 image: image,
-                layers: layers
+                layers: layerInfoList
             });
         })
-        res.render('image', {
-            image: image,
-            layers: layers
-        });
     })
-})
+});
+
+
+// timers to build the in-memory index of images every minutes
+dockerImageRegistry.buildIndex();
+
+setInterval(function(){
+    dockerImageRegistry.buildIndex();
+}, 60000);
 
 module.exports = router;

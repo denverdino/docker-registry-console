@@ -139,7 +139,8 @@
             if (!isEmptyArray(layers)) {
                 var layer = layers.shift();
                 var oldFlag = flag;
-                var href = (flag)? '#': '/images/' + layer;
+                var href = (flag)? '#': '/images/' + layer.id;
+                var label = (layer.displayName) ? layer.id + ' (' + layer.displayName + ')' : layer.id;
                 if (flag) {
                     %><li class="media"><%
                     flag = false;
@@ -148,13 +149,13 @@
                 }
             %>
                 <a class="pull-left" href="<%= href %>">
-                    &nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-right"/>
+                    &nbsp;<span class="glyphicon glyphicon-arrow-right"/>
                 </a>
                 <div class="media-body">
                     <% if (!oldFlag) { %>
-                        <a href="<%= href %>"><%= layer %></a>
+                        <a href="<%= href %>"><%= label %></a>
                     <% } else { %>
-                        <%= layer %><br/>
+                        <%= label %><br/>
                     <% } %>
                     <% generateLayers(layers); %>
                 </div>
