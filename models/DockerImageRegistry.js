@@ -1,44 +1,53 @@
 var request = require('request');
 var Promise = require("es6-promise").Promise;
 
-//TODO Support the user settings for Image Regristry
-//TODO Support user/password
-var DockerImageRegistry = function() {
-    var config = {
-        registry: {
-            host: '172.20.60.201',
-            port: 5000,
-            protocol: 'http',
-            apiVersion: 'v1'
-        }
-    };
+//TODO Support the user settings for Image registry
+var DockerImageRegistry = function(config) {
     this.initialize(config);
 };
 
-
 DockerImageRegistry.prototype.initialize = function(config) {
-    this.host = config.registry.host;
-    this.port = config.registry.port;
-    this.protocol = config.registry.protocol;
-    this.apiVersion = config.registry.apiVersion;
+    var registry = config.registry;
+
+    this.host = registry.host;
+    this.port = registry.port;
+    this.protocol = registry.protocol;
+    this.apiVersion = registry.apiVersion;
     this.baseURL = this.protocol + '://' + this.host + ':' + this.port + '/' + this.apiVersion;
     this.cachedData = {
         imageTags: [],
         tagIndex: {}
     };
-    this.buildIndex();
+
+    if (registry.user) {
+        this.authorizationHeader = 'Basic ' + new Buffer(registry.user + ':' + registry.password).toString('base64');
+    }
+
+    var that = this;
+    if (registry.cache) {
+        //Build in memory cache and refresh every minute.
+        this.buildIndex();
+        setInterval(function() {
+            that.buildIndex();
+        }, 60000);
+    }
 };
 
+DockerImageRegistry.prototype.buildRequestOptions = function(path, query) {
+    var options = {
+        url: this.baseURL + path + ((query && query != '') ? '?' + query : ''),
+        header: {}
+    };
+    if (this.authorizationHeader) {
+        options.header.Authorization = this.authorizationHeader;
 
-DockerImageRegistry.prototype.buildURL = function(path, query) {
-    return this.baseURL + path + ((query && query !='') ? '?' + query : '')
+    }
+    return options;
 };
-
 
 DockerImageRegistry.prototype.buildIndex = function() {
     var that = this;
     this.listTags().then(function(tags){
-        console.log("I am there!");
         var result = {};
         var items = [];
         var tagIndex = {};
@@ -66,9 +75,9 @@ DockerImageRegistry.prototype.listImages = function() {
 };
 
 DockerImageRegistry.prototype.searchImages = function(query) {
-    var url = this.buildURL('/search', query);
+    var options = this.buildRequestOptions('/search', query);
     return new Promise(function(resolve, reject) {
-        request(url, function (error, response, body) {
+        request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 var responseObject = JSON.parse(body);
                 resolve(responseObject.results);
@@ -78,12 +87,12 @@ DockerImageRegistry.prototype.searchImages = function(query) {
 };
 
 DockerImageRegistry.prototype.retrieveTags = function(imageName, description) {
-    var url = this.buildURL('/repositories/' + imageName + '/tags');
+    var options = this.buildRequestOptions('/repositories/' + imageName + '/tags');
     return new Promise(function(resolve, reject) {
-        request(url, function (error, response, body) {
+        request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 var responseObject = JSON.parse(body);
-                var result = []
+                var result = [];
                 for (var tag in responseObject) {
                     var displayName = imageName;
                     if (imageName.startsWith('library')) {
@@ -116,11 +125,11 @@ DockerImageRegistry.prototype.listTags = function() {
     });
 };
 
-DockerImageRegistry.prototype.retriveImageDetails = function(id) {
+DockerImageRegistry.prototype.retrieveImageDetails = function(id) {
 
-    var url = this.baseURL + '/images/' + id + '/json';
+    var options = this.buildRequestOptions('/images/' + id + '/json');
     return new Promise(function(resolve, reject) {
-        request(url, function (error, response, body) {
+        request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 var responseObject = JSON.parse(body);
                 resolve(responseObject);
@@ -130,11 +139,10 @@ DockerImageRegistry.prototype.retriveImageDetails = function(id) {
     });
 };
 
-DockerImageRegistry.prototype.retriveImageAncestry = function(id) {
-
-    var url = this.baseURL + '/images/' + id + '/ancestry';
+DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
+    var options = this.buildRequestOptions('/images/' + id + '/ancestry');
     return new Promise(function(resolve, reject) {
-        request(url, function (error, response, body) {
+        request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 var responseObject = JSON.parse(body);
                 resolve(responseObject);
@@ -144,4 +152,4 @@ DockerImageRegistry.prototype.retriveImageAncestry = function(id) {
 };
 
 
-module.exports = new DockerImageRegistry();
+module.exports = DockerImageRegistry;

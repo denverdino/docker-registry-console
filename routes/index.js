@@ -1,8 +1,22 @@
 var express = require('express');
-var dockerImageRegistry = require('../models/DockerImageRegistry');
+var DockerImageRegistry = require('../models/DockerImageRegistry');
 var router = express.Router();
 
 require('../utils/polyfill');
+
+//TODO Support the configuration change
+var config = {
+    registry: {
+        host: '172.20.60.201',
+        port: 5000,
+        protocol: 'http',
+        apiVersion: 'v1',
+        cache: true
+    }
+};
+
+var privateRegistry = new DockerImageRegistry(config);
+
 
 function isEmptyObject(obj) {
     return obj == null || !Object.keys(obj).length;
@@ -11,7 +25,7 @@ function isEmptyObject(obj) {
 /* GET home page. */
 router.get('/', function(req, res) {
     //Get cached data
-    var items = dockerImageRegistry.cachedData.imageTags;
+    var items = privateRegistry.cachedData.imageTags;
 
     //Sort by name and tag
     items.sort(function (a, b) {
@@ -31,12 +45,12 @@ router.get('/', function(req, res) {
 });
 
 router.get('/images/:id', function(req, res) {
-    dockerImageRegistry.retriveImageDetails(req.params.id).then(function(image) {
-        dockerImageRegistry.retriveImageAncestry(req.params.id).then(function (layers) {
+    privateRegistry.retrieveImageDetails(req.params.id).then(function(image) {
+        privateRegistry.retrieveImageAncestry(req.params.id).then(function (layers) {
             var layerInfoList = [];
             layers.forEach(function(layer){
                 var displayName = null;
-                var imageInfo = dockerImageRegistry.cachedData.tagIndex[layer];
+                var imageInfo = privateRegistry.cachedData.tagIndex[layer];
                 if (imageInfo) {
                     displayName = imageInfo.name + ':' + imageInfo.tag;
                 }
@@ -50,12 +64,5 @@ router.get('/images/:id', function(req, res) {
     })
 });
 
-
-// timers to build the in-memory index of images every minutes
-dockerImageRegistry.buildIndex();
-
-setInterval(function(){
-    dockerImageRegistry.buildIndex();
-}, 60000);
 
 module.exports = router;
