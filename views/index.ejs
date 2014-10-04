@@ -38,9 +38,14 @@
     <!-- Main component for a primary marketing message or call to action -->
     <div class="jumbotron">
         <h1>Docker images</h1>
-        <p>Listing the Docker images from private registry.
-        </p>
     </div>
+
+    <form class="navbar-form navbar-left" role="search" method="GET">
+        <div class="form-group">
+            <input type="text" class="form-control"  name="q" autofocus="true" placeholder="Search the registry" value="<%= (params.q)? params.q : '' %>">
+        </div>
+        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> Search</button>
+    </form>
 
     <div class="panel panel-default">
         <!-- Table -->

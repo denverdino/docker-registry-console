@@ -1,13 +1,12 @@
 var request = require('request');
 var Promise = require("es6-promise").Promise;
 
-//TODO Support the user settings for Image registry
-var DockerImageRegistry = function(config) {
-    this.initialize(config);
+var DockerImageRegistry = function(registryConfig) {
+    this.initialize(registryConfig);
 };
 
-DockerImageRegistry.prototype.initialize = function(config) {
-    var registry = config.registry;
+DockerImageRegistry.prototype.initialize = function(registryConfig) {
+    var registry = registryConfig;
 
     this.host = registry.host;
     this.port = registry.port;
@@ -67,15 +66,24 @@ DockerImageRegistry.prototype.buildIndex = function() {
     });
 };
 
-
-
+function fixedEncodeURIComponent(str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+    });
+}
 
 DockerImageRegistry.prototype.listImages = function() {
-    return this.searchImages('');
+    return this.searchImages(null);
 };
 
 DockerImageRegistry.prototype.searchImages = function(query) {
-    var options = this.buildRequestOptions('/search', query);
+    var queryString = '';
+    if (query) {
+        queryString = 'q=' + fixedEncodeURIComponent(query);
+    }
+
+    var options = this.buildRequestOptions('/search', queryString);
+    console.log(options.url);
     return new Promise(function(resolve, reject) {
         request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -114,9 +122,9 @@ DockerImageRegistry.prototype.retrieveTags = function(imageName, description) {
     });
 };
 
-DockerImageRegistry.prototype.listTags = function() {
+DockerImageRegistry.prototype.listTags = function(query) {
     var that = this;
-    return that.searchImages('').then(function(images) {
+    return that.searchImages(query).then(function(images) {
         return Promise.all(
             images.map(function(image) {
                 return that.retrieveTags(image.name, image.description)

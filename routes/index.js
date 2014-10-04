@@ -1,21 +1,20 @@
+require('../utils/polyfill');
+
+var config = require('../utils/config');
+
+var http = require("http");
+var url = require("url");
 var express = require('express');
 var DockerImageRegistry = require('../models/DockerImageRegistry');
 var router = express.Router();
 
-require('../utils/polyfill');
+var privateRegistry = new DockerImageRegistry(config.registry);
 
-//TODO Support the configuration change
-var config = {
-    registry: {
-        host: '172.20.60.201',
-        port: 5000,
-        protocol: 'http',
-        apiVersion: 'v1',
-        cache: true
-    }
-};
-
-var privateRegistry = new DockerImageRegistry(config);
+//var dockerHub = new DockerImageRegistry(config.dockerHub);
+//
+//dockerHub.searchImages('centos').then(function(images){
+//    console.log(images);
+//});
 
 
 function isEmptyObject(obj) {
@@ -24,24 +23,35 @@ function isEmptyObject(obj) {
 
 /* GET home page. */
 router.get('/', function(req, res) {
-    //Get cached data
-    var items = privateRegistry.cachedData.imageTags;
+    var params = url.parse(req.url, true).query;
 
-    //Sort by name and tag
-    items.sort(function (a, b) {
-        var result = 0;
-        if (a.displayName > b.displayName) {
-            result = 1;
-        } else if (a.displayName < b.displayName) {
-            result = -1;
-        } else if (a.tag > b.tag) {
-            result = 1;
-        } else if (a.tag < b.tag) {
-            result = -1;
-        }
-        return result;
+    privateRegistry.listTags(params.q).then(function(tags){
+        var items = [];
+
+        tags.forEach(function(imageTags) {
+            for (var i = 0, len = imageTags.length; i < len; ++i) {
+                var item = imageTags[i];
+                items.push(item);
+            }
+        });
+        //Sort by name and tag
+        items.sort(function (a, b) {
+            var result = 0;
+            if (a.displayName > b.displayName) {
+                result = 1;
+            } else if (a.displayName < b.displayName) {
+                result = -1;
+            } else if (a.tag > b.tag) {
+                result = 1;
+            } else if (a.tag < b.tag) {
+                result = -1;
+            }
+            return result;
+        });
+        res.render('index', { items: items, params: params});
     });
-    res.render('index', { items: items});
+
+
 });
 
 router.get('/images/:id', function(req, res) {
