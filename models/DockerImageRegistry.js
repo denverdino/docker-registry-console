@@ -159,5 +159,33 @@ DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
     });
 };
 
+DockerImageRegistry.prototype.listImageTags = function(query) {
+
+    return this.listTags(query).then(function (tags) {
+        var items = [];
+
+        tags.forEach(function (imageTags) {
+            for (var i = 0, len = imageTags.length; i < len; ++i) {
+                var item = imageTags[i];
+                items.push(item);
+            }
+        });
+        //Sort by name and tag
+        items.sort(function (a, b) {
+            var result = 0;
+            if (a.displayName > b.displayName) {
+                result = 1;
+            } else if (a.displayName < b.displayName) {
+                result = -1;
+            } else if (a.tag > b.tag) {
+                result = 1;
+            } else if (a.tag < b.tag) {
+                result = -1;
+            }
+            return result;
+        });
+        return items;
+    });
+};
 
 module.exports = DockerImageRegistry;
