@@ -1,10 +1,9 @@
 {
-    "name": "NEMANJS",
-    "version": "0.0.2",
+    "name": "docker-image-registry-console",
+    "version": "0.0.1",
     "dependencies": {
         "jquery": "~2.1.1",
         "bootstrap": "~3.2.0",
-        "flat-ui": "*",
         "angular": "~1.2",
         "angular-bootstrap": "~0.11"
     },
@@ -13,7 +12,6 @@
         "**/.*",
         "node_modules",
         "bower_components",
-        "test",
         "tests"
     ]
 }
