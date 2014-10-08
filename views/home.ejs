@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html ng-app="myApp">
 <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Docker Image Registry</title>
-    <!-- link rel='stylesheet' href='/stylesheets/style.css'/ -->
-    <!-- Bootstrap core CSS -->
-    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap theme -->
-    <link href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+    <% include header.ejs %>
 </head>
 <body role="document">
 <div class="container">
@@ -70,10 +63,7 @@
         </div>
     </div>
 </div> <!-- /container -->
-<script src = "/bower_components/angular/angular.min.js"></script>
-<script src = "/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-<script src = "/javascripts/controlers/dockerImageControlers.js"></script>
-
+<% include footer.ejs %>
 </body>
 </html>
 
