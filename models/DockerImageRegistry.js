@@ -1,5 +1,7 @@
 var request = require('request');
 var Promise = require("es6-promise").Promise;
+require('../utils/polyfill.js');
+var DEFAULT_NAMESPACE = 'library/';
 
 var DockerImageRegistry = function(registryConfig) {
     this.initialize(registryConfig);
@@ -14,8 +16,7 @@ DockerImageRegistry.prototype.initialize = function(registryConfig) {
     this.apiVersion = registry.apiVersion;
     this.baseURL = this.protocol + '://' + this.host + ':' + this.port + '/' + this.apiVersion;
     this.cachedData = {
-        imageTags: [],
-        tagIndex: {}
+        imageTagIndex: {}
     };
 
     if (registry.user) {
@@ -41,23 +42,29 @@ DockerImageRegistry.prototype.buildRequestOptions = function(path, query) {
         options.header.Authorization = this.authorizationHeader;
 
     }
+    //console.log(options.url);
     return options;
 };
 
 DockerImageRegistry.prototype.buildIndex = function() {
     var that = this;
-    this.listTags().then(function(tags){
-        var result = {};
-        var items = [];
-        var tagIndex = {};
-        result.imageTags = items;
-        result.tagIndex = tagIndex;
+    this._searchRepoImagesWithTag().then(function(tags){
+        var result = {
+            imageTagIndex: {}
+        };
+        var imageTagIndex = result.imageTagIndex;
 
         tags.forEach(function(imageTags) {
             for (var i = 0, len = imageTags.length; i < len; ++i) {
                 var item = imageTags[i];
-                items.push(item);
-                tagIndex[item.id] = item;
+                if (item.tag) {
+                    var value = imageTagIndex[item.id];
+                    if (value) {
+                        value.push(item);
+                    } else {
+                        imageTagIndex[item.id] = [item];
+                    }
+                }
             }
         });
         console.log("Refresh cache completed!");
@@ -66,24 +73,33 @@ DockerImageRegistry.prototype.buildIndex = function() {
     });
 };
 
-function fixedEncodeURIComponent(str) {
-    return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
-        return '%' + c.charCodeAt(0).toString(16);
+DockerImageRegistry.prototype.retrieveRepository = function(repoName) {
+    return this.searchRepositories(repoName).then(function(repositories){
+        var result = null;
+        var repoName2 = DEFAULT_NAMESPACE + repoName;
+        for (var i = 0; i < repositories.length; i++) {
+            var name = repositories[i].name;
+            if (repoName === name || repoName2  === name) { //Found
+                result = repositories[i];
+                break;
+            }
+        }
+        return result; //Not found
     });
-}
-
-DockerImageRegistry.prototype.listImages = function() {
-    return this.searchImages(null);
 };
 
-DockerImageRegistry.prototype.searchImages = function(query) {
+DockerImageRegistry.prototype.listRepositories = function() {
+    return this.searchRepositories(null);
+};
+
+DockerImageRegistry.prototype.searchRepositories = function(query) {
     var queryString = '';
     if (query) {
-        queryString = 'q=' + fixedEncodeURIComponent(query);
+        queryString = 'q=' + encodeURIComponent(query);
     }
 
     var options = this.buildRequestOptions('/search', queryString);
-    console.log(options.url);
+
     return new Promise(function(resolve, reject) {
         request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -94,21 +110,126 @@ DockerImageRegistry.prototype.searchImages = function(query) {
     });
 };
 
-DockerImageRegistry.prototype.retrieveTags = function(imageName, description) {
-    var options = this.buildRequestOptions('/repositories/' + imageName + '/tags');
+DockerImageRegistry.prototype.listRepoTags = function(repoName) {
+    var repoURL = '/repositories/' + repoName;
+    var tagOptions = this.buildRequestOptions(repoURL + '/tags');
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        request(tagOptions, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var tags = JSON.parse(body);
+                if (Array.isArray(tags)) { //Docker Hub API
+                    var tagList = tags;
+                    tags = {};
+                    var imageOptions = that.buildRequestOptions(repoURL + '/images');
+                    request(imageOptions, function (error, response, body) {
+                        var images = JSON.parse(body);
+                        if (!error && response.statusCode == 200) {
+                            for (var j = 0; j < tagList.length; j++) {
+                                var tag = tagList[j].name;
+                                var layer = tagList[j].layer;
+                                for (var i = 0; i < images.length; i++) {
+                                    //Get the full image id
+                                    if (images[i].id.startsWith(layer)) {
+                                        tags[tag] = images[i].id;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        resolve(tags);
+                    })
+                } else {
+                    resolve(tags);
+                }
+            }
+        })
+    });
+};
+
+DockerImageRegistry.prototype.retrieveImageFromDockerHub = function(repoName, imageId) {
+    return this.listRepoImages(repoName).then(function(images){
+        var result = null;
+        for (var i = 0; i < images.length; i++) {
+            var image = images[i];
+            if (image.id === imageId) { //Found
+                result = image;
+                break;
+            }
+        }
+        return result; //Not found
+    })
+};
+
+DockerImageRegistry.prototype.listRepoImages = function(repoName) {
+    var repoURL = '/repositories/' + repoName;
+    var imageOptions = this.buildRequestOptions(repoURL + '/images');
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        request(imageOptions, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var images = JSON.parse(body);
+                resolve(images);
+            }
+        })
+    }).then(function(images){
+        var tagOptions = that.buildRequestOptions(repoURL + '/tags');
+        return new Promise(function(resolve, reject) {
+            request(tagOptions, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var tags = JSON.parse(body);
+                    if (Array.isArray(tags)) { //Docker Hub API
+                        var tagList = tags;
+                        for (var j = 0; j < tagList.length; j++) {
+                            var tag = tagList[j].name;
+                            var layer = tagList[j].layer;
+                            for (var i = 0; i < images.length; i++) {
+                                //Get the full image id
+                                if (images[i].id.startsWith(layer)) {
+                                    if (images[i].tags) {
+                                        images[i].tags.push(tag);
+                                    } else {
+                                        images[i].tags = [tag];
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        for (var tag in tags) {
+                            var value = tags[tag];
+                            for (var i = 0; i < images.length; i ++) {
+                                if (images[i].id.startsWith(value)) {
+                                    if (images[i].tags) {
+                                        images[i].tags.push(tag);
+                                    } else {
+                                        images[i].tags = [tag];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    resolve(images);
+                }
+            })
+        });
+    });
+};
+
+DockerImageRegistry.prototype.retrieveRepoTags = function(repoName, description) {
+    var options = this.buildRequestOptions('/repositories/' + repoName + '/tags');
     return new Promise(function(resolve, reject) {
         request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 var responseObject = JSON.parse(body);
                 var result = [];
                 for (var tag in responseObject) {
-                    var displayName = imageName;
-                    if (imageName.startsWith('library')) {
-                        displayName = imageName.substring('library'.length + 1)
+                    var displayName = repoName;
+                    if (repoName.startsWith(DEFAULT_NAMESPACE)) {
+                        displayName = repoName.substring(DEFAULT_NAMESPACE.length)
                     }
 
                     var image = {
-                        'name': imageName,
+                        'name': repoName,
                         'displayName': displayName,
                         'tag': tag,
                         'id': responseObject[tag],
@@ -122,12 +243,12 @@ DockerImageRegistry.prototype.retrieveTags = function(imageName, description) {
     });
 };
 
-DockerImageRegistry.prototype.listTags = function(query) {
+DockerImageRegistry.prototype._searchRepoImagesWithTag = function(query) {
     var that = this;
-    return that.searchImages(query).then(function(images) {
+    return that.searchRepositories(query).then(function(repositories) {
         return Promise.all(
-            images.map(function(image) {
-                return that.retrieveTags(image.name, image.description)
+            repositories.map(function(repo) {
+                return that.retrieveRepoTags(repo.name, repo.description)
             })
         );
     });
@@ -159,9 +280,9 @@ DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
     });
 };
 
-DockerImageRegistry.prototype.listImageTags = function(query) {
+DockerImageRegistry.prototype.searchRepoImagesWithTag = function(query) {
 
-    return this.listTags(query).then(function (tags) {
+    return this._searchRepoImagesWithTag(query).then(function (tags) {
         var items = [];
 
         tags.forEach(function (imageTags) {

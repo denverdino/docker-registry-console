@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var resources_tags = require('./routes/resources/tags');
+var resources_registries = require('./routes/resources/registries');
+
 //var users = require('./routes/users');
 
 var app = express();
@@ -25,6 +27,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/resources/tags', resources_tags);
+app.use('/resources/registries/private', resources_registries(false));
+app.use('/resources/registries/public', resources_registries(true));
 
 //app.use('/users', users);
 

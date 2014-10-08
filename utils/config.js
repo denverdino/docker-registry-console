@@ -20,7 +20,7 @@ try {
     config = JSON.parse(data);
 }
 catch (err) {
-    console.log('There has been an error parsing the config JSON.')
+    console.log('There has been an error parsing the config JSON.');
     console.log(err);
 }
 

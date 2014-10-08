@@ -12,7 +12,7 @@ var privateRegistry = new DockerImageRegistry(config.registry);
 
 //var dockerHub = new DockerImageRegistry(config.dockerHub);
 //
-//dockerHub.searchImages('centos').then(function(images){
+//dockerHub.searchRepositories('centos').then(function(images){
 //    console.log(images);
 //});
 
@@ -24,12 +24,7 @@ function isEmptyObject(obj) {
 /* GET home page. */
 router.get('/', function(req, res) {
     var params = url.parse(req.url, true).query;
-
-    privateRegistry.listImageTags(params.q).then(function(items){
-        res.render('home', { items: items, params: params});
-    });
-
-
+    res.render('home', { params: params});
 });
 
 router.get('/images/:id', function(req, res) {
@@ -38,9 +33,16 @@ router.get('/images/:id', function(req, res) {
             var layerInfoList = [];
             layers.forEach(function(layer){
                 var displayName = null;
-                var imageInfo = privateRegistry.cachedData.tagIndex[layer];
-                if (imageInfo) {
-                    displayName = imageInfo.name + ':' + imageInfo.tag;
+                var images = privateRegistry.cachedData.imageTagIndex[layer];
+                if (images) {
+                    displayName = '';
+                    for (var i = 0; i < images.length; i++) {
+                        if (i > 0) {
+                            displayName += ', '
+                        }
+                        displayName += images[i].displayName + ':' + images[i].tag;
+                    }
+
                 }
                 layerInfoList.push({id: layer, displayName: displayName})
             });

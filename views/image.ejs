@@ -132,50 +132,33 @@
     </div>
     <%
     }
-
     if (!isEmptyArray(layers)) {
-        var flag = true
-        function generateLayers(layers) {
-            if (!isEmptyArray(layers)) {
-                var layer = layers.shift();
-                var oldFlag = flag;
-                var href = (flag)? '#': '/images/' + layer.id;
-                var label = (layer.displayName) ? layer.id + ' (' + layer.displayName + ')' : layer.id;
-                if (flag) {
-                    %><li class="media"><%
-                    flag = false;
-                } else {
-                    %><div class="media"><%
-                }
-            %>
-                <a class="pull-left" href="<%= href %>">
-                    &nbsp;<span class="glyphicon glyphicon-arrow-right"/>
-                </a>
-                <div class="media-body">
-                    <% if (!oldFlag) { %>
-                        <a href="<%= href %>"><%= label %></a>
-                    <% } else { %>
-                        <%= label %><br/>
-                    <% } %>
-                    <% generateLayers(layers); %>
-                </div>
-            <%
-                if (oldFlag) {
-                    %></li><%
-                } else {
-                    %></div><%
-                }
-            }
-        }
-
     %>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Ancestry layers</h3>
         </div>
-        <ul class="media-list">
-            <% generateLayers(layers) %>
-        </ul>
+        <!-- Table -->
+        <table class="table">
+            <tbody>
+            <% for (var i = 0; i < layers.length; i++) {
+                var layer = layers[i];
+                var href = (i === 0)? '#': '/images/' + layer.id;
+                var label = (layer.displayName) ? layer.id + ' (' + layer.displayName + ')' : layer.id;
+            %>
+                <tr>
+                    <td>
+                        <a href="<%= href %>">&nbsp;<span class="glyphicon glyphicon-arrow-right"></span></a>
+                        <% if (i > 0) { %>
+                        <a href="<%= href %>"><%= label %></a>
+                        <% } else { %>
+                        <%= label %>
+                        <% } %>
+                    </td>
+                </tr>
+            <%}%>
+            </tbody>
+        </table>
     </div>
     <%
     }
