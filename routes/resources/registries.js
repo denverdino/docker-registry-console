@@ -33,7 +33,7 @@ module.exports = function(publicRegistry) {
     router.get('/:namespace/:repoId/tags', handleListRepoTags);
 
     var handleRetrieveRepoInfo = function(req, res) {
-        registry.retrieveRepository(getRepoName(req)).then(function (info) {
+        registry.retrieveRepoWithImages(getRepoName(req)).then(function (info) {
             processResult(res, info);
         });
     };

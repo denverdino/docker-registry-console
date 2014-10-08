@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="myImage">
 <head>
     <title>Docker Image</title>
     <% include header.ejs %>
@@ -155,9 +155,43 @@
     </div>
     <%
     }
+
+    if (params.repo) { //Get the repo information from Docker Hub
+    %>
+    <div ng-init="repoName='<%= params.repo %>';tag='<%= params.tag %>';imageId='<%= image.id %>'">
+        <div class="panel panel-default" ng-controller="imageInfoController">
+            <div class="panel-heading">
+                <h3 class="panel-title">Docker Hub information</h3>
+            </div>
+            <!-- Table -->
+            <table class="table" ng-show="hasResult">
+                <tbody>
+                    <tr>
+                        <td class="col-md-3">Repository name</td>
+                        <td><a href="{{ repository.url }}" target="_blank">{{ repository.name }}</a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star-empty icon-star"></span> {{ repository.star_count }} </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-3">Tag</td><td>{{ tag }}
+                            <span class="label label-success" ng-show="status === 'matched'">Up-to-date</span>
+                            <span class="label label-warning" ng-show="status === 'found'">Update available</span>
+                            <span class="label label-danger" ng-show="status === 'not_found'">Not found</span>
+                        </td>
+                    </tr>
+                    <tr><td class="col-md-3" ng-show="isReady">Automatic build</td><td>{{ repository.is_automated }}</td></tr>
+                    <tr><td class="col-md-3" ng-show="isReady">Official repository</td><td>{{ repository.is_official }}</td></tr>
+                    <tr><td class="col-md-3" ng-show="isReady">All tags</td><td>{{ repository.tags.join(', ') }}</td></tr>
+                </tbody>
+            </table>
+            <span class="label label-danger" ng-show="status === 'invalid'">The repository "{{ repoName }}" is not found in Docker Hub. </span>
+            <div ng-show="!isReady">&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading... </div>
+        </div>
+    </div>
+    <%
+    }
     %>
 </div> <!-- /container -->
 <% include footer.ejs %>
+<script src = "/javascripts/controllers/imageContollers.js"></script>
 </body>
 </html>
 

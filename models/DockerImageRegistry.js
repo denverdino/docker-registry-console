@@ -40,9 +40,8 @@ DockerImageRegistry.prototype.buildRequestOptions = function(path, query) {
     };
     if (this.authorizationHeader) {
         options.header.Authorization = this.authorizationHeader;
-
     }
-    //console.log(options.url);
+    console.log(options.url);
     return options;
 };
 
@@ -87,6 +86,20 @@ DockerImageRegistry.prototype.retrieveRepository = function(repoName) {
         return result; //Not found
     });
 };
+
+DockerImageRegistry.prototype.retrieveRepoWithImages = function(repoName) {
+    var that = this;
+    return this.retrieveRepository(repoName).then(function(repository) {
+        if (repository) {
+            return that.listRepoImages(repoName).then(function (images) {
+                repository.images =  images; //Not found
+                return repository;
+            });
+        }
+        return null;
+    });
+};
+
 
 DockerImageRegistry.prototype.listRepositories = function() {
     return this.searchRepositories(null);

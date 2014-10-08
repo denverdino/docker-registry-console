@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="myApp">
+<html ng-app="homepage">
 <head>
     <title>Docker Image Registry</title>
     <% include header.ejs %>
@@ -48,11 +48,11 @@
             </thead>
             <tbody>
                 <tr ng-repeat="item in items">
-                    <td class="col-md-3"><a href="/images/{{ item.id }}">{{ item.displayName }}</a></td>
+                    <td class="col-md-3"><a href="/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}">{{ item.displayName }}</a></td>
                     <td class="col-md-1">{{ item.tag }}</td>
                     <td>{{ item.description }}</td>
                     <td>
-                        <a href="/images/{{ item.id }}"><span class="glyphicon glyphicon-wrench"></span></a>
+                        <a href="/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
                         <a href="#"><span class="glyphicon glyphicon-remove"></span></a>
                     </td>
                 </tr>
@@ -64,6 +64,7 @@
     </div>
 </div> <!-- /container -->
 <% include footer.ejs %>
+<script src = "/javascripts/controllers/homepageControllers.js"></script>
 </body>
 </html>
 

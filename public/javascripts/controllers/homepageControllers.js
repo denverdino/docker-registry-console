@@ -1,4 +1,4 @@
-angular.module('myApp', ['ui.bootstrap'])
+angular.module('homepage', ['ui.bootstrap'])
     .factory('dockerRegistryService', ['$http', function($http) {
         var dockerRegistryService = {
             query: function(searchTerm) {

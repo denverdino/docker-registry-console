@@ -46,9 +46,11 @@ router.get('/images/:id', function(req, res) {
                 }
                 layerInfoList.push({id: layer, displayName: displayName})
             });
+            var params = url.parse(req.url, true).query;
             res.render('image', {
                 image: image,
-                layers: layerInfoList
+                layers: layerInfoList,
+                params: params
             });
         })
     })
