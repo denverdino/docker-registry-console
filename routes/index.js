@@ -1,21 +1,13 @@
 require('../utils/polyfill');
 
-var config = require('../utils/config');
-
 var http = require("http");
 var url = require("url");
 var express = require('express');
-var DockerImageRegistry = require('../models/DockerImageRegistry');
+var DockerImageRegistry = require('../services/DockerImageRegistry');
+var dockerHub = require('../services/DockerHub');
 var router = express.Router();
 
-var privateRegistry = new DockerImageRegistry(config.registry);
-
-//var dockerHub = new DockerImageRegistry(config.dockerHub);
-//
-//dockerHub.searchRepositories('centos').then(function(images){
-//    console.log(images);
-//});
-
+var privateRegistry = DockerImageRegistry.privateRegistry;
 
 function isEmptyObject(obj) {
     return obj == null || !Object.keys(obj).length;

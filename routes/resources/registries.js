@@ -1,5 +1,6 @@
 var config = require('../../utils/config');
-var DockerImageRegistry = require('../../models/DockerImageRegistry');
+var DockerImageRegistry = require('../../services/DockerImageRegistry');
+var dockerHub = require('../../services/DockerHub');
 var express = require('express');
 var url = require("url");
 
@@ -7,9 +8,7 @@ module.exports = function(publicRegistry) {
 
     var router = express.Router();
 
-    var dockerHub = new DockerImageRegistry(config.dockerHub);
-
-    var registry = (publicRegistry)? dockerHub : new DockerImageRegistry(config.registry);
+    var registry = (publicRegistry)? dockerHub : DockerImageRegistry.privateRegistry;
 
     var getRepoName = function(req) {
         return (req.params.namespace)? req.params.namespace + '/' + req.params.repoId: req.params.repoId;
@@ -43,7 +42,7 @@ module.exports = function(publicRegistry) {
 
 
     var handleListRepoImages = function(req, res) {
-        registry.listRepoImages(getRepoName(req)).then(function (images) {
+        registry.listRepoImagesWithTag(getRepoName(req)).then(function (images) {
             processResult(res, images);
         });
     };

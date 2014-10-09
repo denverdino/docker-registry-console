@@ -1,17 +1,22 @@
 {
-	"registry": {
+	"privateRegistry": {
 		"host": "172.20.60.201",
 		"port": 5000,
 		"protocol": "http",
 		"apiVersion": "v1",
 		"cache": true
 	},
+    "publicRegistry": {
+        "host": "registry-1.docker.io",
+        "port": 443,
+        "protocol": "https",
+        "apiVersion": "v1"
+    },
 	"dockerHub": {
 		"host": "registry.hub.docker.com",
 		"port": 443,
 		"protocol": "https",
 		"apiVersion": "v1",
-		"cache": false,
 		"user": "USER_NAME",
 		"password": "PASSWORD"
 	}

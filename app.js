@@ -1,3 +1,5 @@
+require('./utils/polyfill.js');
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -5,11 +7,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-var resources_tags = require('./routes/resources/tags');
-var resources_registries = require('./routes/resources/registries');
-
-//var users = require('./routes/users');
 
 var app = express();
 
@@ -25,10 +22,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+//Register routes
+var routes = require('./routes/index');
+var resources_tags = require('./routes/resources/tags');
+var resources_registries = require('./routes/resources/registries');
+
+//var users = require('./routes/users');
+
 app.use('/resources/tags', resources_tags);
 app.use('/resources/registries/private', resources_registries(false));
 app.use('/resources/registries/public', resources_registries(true));
+app.use('/', routes);
 
 //app.use('/users', users);
 

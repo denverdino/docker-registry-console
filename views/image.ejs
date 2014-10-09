@@ -70,7 +70,6 @@
                 <table class="table">
                     <tbody>
                     <% for (var port in image.config.ExposedPorts) {
-                        console.log(port)
                         var portInfo=port.split('/')
                     %>
                     <tr><td class="col-md-3"><%= portInfo[0] %></td><td><%= portInfo[1] %></td></tr>
@@ -177,6 +176,7 @@
                             <span class="label label-danger" ng-show="status === 'not_found'">Not found</span>
                         </td>
                     </tr>
+                    <tr><td class="col-md-3" ng-show="isReady">Description</td><td>{{ repository.description }}</td></tr>
                     <tr><td class="col-md-3" ng-show="isReady">Automatic build</td><td>{{ repository.is_automated }}</td></tr>
                     <tr><td class="col-md-3" ng-show="isReady">Official repository</td><td>{{ repository.is_official }}</td></tr>
                     <tr><td class="col-md-3" ng-show="isReady">All tags</td><td>{{ repository.tags.join(', ') }}</td></tr>
