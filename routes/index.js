@@ -51,9 +51,9 @@ router.get('/images/:id', function(req, res) {
 
 
 /* GET docker hub page. */
-router.get('/hub', function(req, res) {
+router.get('/docker_hub', function(req, res) {
     var params = url.parse(req.url, true).query;
-    res.render('dockerHub', { params: params});
+    res.render('docker_hub', { params: params});
 });
 
 module.exports = router;
