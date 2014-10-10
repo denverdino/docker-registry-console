@@ -16,7 +16,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Private Docker Registry</a>
+                <a class="navbar-brand" href="#">Docker Hub</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -29,8 +29,8 @@
     </div>
 
     <!-- Main component for a primary marketing message or call to action -->
-    <p><h2>Docker images</h2></p>
-    <div class="panel panel-default" ng-controller="imagesController">
+    <p><h1>Repositories</h1></p>
+    <div class="panel panel-default" ng-controller="repositoriesController">
         <form class="navbar-form navbar-left" name="searchForm">
             <div class="form-group">
                 <input type="text" class="form-control" ng-model="searchTerm" autofocus="true" placeholder="Search the registry" />
@@ -40,22 +40,23 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th class="col-md-3">Name</th>
-                    <th class="col-md-3">Tag</th>
-                    <th class="col-md-2">Created</th>
-                    <th class="col-md-1">Docker version</th>
+                    <th class="col-md-2">Name</th>
+                    <th class="col-md-6">Description</th>
+                    <th class="col-md-1">Automatic build</th>
+                    <th class="col-md-1">Official repository</th>
+                    <th class="col-md-1">Stars</th>
                     <th class="col-md-1">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="item in items">
-                    <td><a href="/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}">{{ item.displayName }}</a></td>
-                    <td>{{ item.tag }}</td>
-                    <td>{{ item.last_update * 1000 | date:'short' }}</td>
-                    <td>{{ item.docker_version }}</td>
+                <tr ng-repeat="repository in items">
+                    <td>{{ repository.name }}</td>
+                    <td class="td-description">{{ repository.description }}</td>
+                    <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_automated"></span></td>
+                    <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_official"></span></td>
+                    <td>{{ repository.star_count }}</td>
                     <td>
-                        <a href="/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
-                        <a href="#"><span class="glyphicon glyphicon-remove"></span></a>
+                        <a href="#"><span class="glyphicon glyphicon-wrench"></span></a>
                     </td>
                 </tr>
             </tbody>
@@ -63,8 +64,9 @@
         <div class="panel-body" ng-show="!isReady">
             &nbsp;&nbsp;<image src="/images/loading.gif"/> Loading...
         </div>
+        <div class="panel-body"><p>Total number: {{totalItems}}</p></div>
         <div class="pagination pull-right">
-            <pagination boundary-links="true" total-items="totalItems" ng-model="currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()"></pagination>
+            <pagination total-items="totalItems" ng-model="currentPage" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()"></pagination>
         </div>
     </div>
 </div> <!-- /container -->
@@ -72,4 +74,3 @@
 <script src = "/javascripts/controllers/homepageControllers.js"></script>
 </body>
 </html>
-

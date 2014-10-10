@@ -24,14 +24,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //Register routes
 var routes = require('./routes/index');
-var resources_tags = require('./routes/resources/tags');
-var resources_registries = require('./routes/resources/registries');
+var resources_images = require('./routes/resources/images');
+var resources_repositories = require('./routes/resources/repositories');
 
 //var users = require('./routes/users');
 
-app.use('/resources/tags', resources_tags);
-app.use('/resources/registries/private', resources_registries(false));
-app.use('/resources/registries/public', resources_registries(true));
+app.use('/resources/registries/private/images', resources_images);
+app.use('/resources/registries/private/repositories', resources_repositories(false));
+app.use('/resources/registries/public/repositories', resources_repositories(true));
 app.use('/', routes);
 
 //app.use('/users', users);

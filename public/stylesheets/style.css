@@ -1,3 +1,11 @@
 .icon-star {
     color: #CC6600;
 }
+
+.icon-success {
+    color: #5CB85C;
+}
+
+.td-description {
+    white-space: pre-wrap;
+}

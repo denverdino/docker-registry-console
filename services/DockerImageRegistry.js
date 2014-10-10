@@ -106,11 +106,15 @@ DockerImageRegistry.prototype.retrieveRepoTags = function(repo) {
 DockerImageRegistry.prototype._searchRepoImagesWithTag = function(query) {
     var that = this;
     return that.searchRepositories(query).then(function(repositories) {
-        return Promise.all(
-            repositories.map(function(repo) {
-                return that.retrieveRepoTags(repo)
-            })
-        );
+        if (repositories.lenght == 0) {
+            return []
+        } else {
+            return Promise.all(
+                repositories.map(function (repo) {
+                    return that.retrieveRepoTags(repo)
+                })
+            );
+        }
     });
 };
 
@@ -142,17 +146,21 @@ DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
 DockerImageRegistry.prototype.searchRepoImagesWithTag = function(query) {
     var that = this;
     return that.searchRepositories(query).then(function(repositories) {
-        return Promise.all(
-            repositories.map(function (repo) {
-                return that.retrieveRepoTags(repo).then(function(tags) {
-                    return Promise.all(
-                        tags.map(function(tag){
-                            return that._retrieveRepoTagInfo(repo.name, tag.tag, null, tag);
-                        })
-                    );
-                });
-            })
-        );
+        if (repositories.length == 0) {
+            return [];
+        } else {
+            return Promise.all(
+                repositories.map(function (repo) {
+                    return that.retrieveRepoTags(repo).then(function(tags) {
+                        return Promise.all(
+                            tags.map(function(tag){
+                                return that._retrieveRepoTagInfo(repo.name, tag.tag, null, tag);
+                            })
+                        );
+                    });
+                })
+            );
+        }
     }).then(function (tags) {
         var items = [];
 

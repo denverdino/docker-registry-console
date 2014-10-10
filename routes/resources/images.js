@@ -10,6 +10,7 @@ var privateRegistry = DockerImageRegistry.privateRegistry;
 router.get('/', function(req, res) {
     var params = url.parse(req.url, true).query;
     privateRegistry.searchRepoImagesWithTag(params.q).then(function(items){
+        console.log(items);
         res.json(items);
     });
 

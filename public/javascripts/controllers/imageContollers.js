@@ -5,7 +5,7 @@ angular.module('myImage', [])
                 return $http(
                     {
                         method: 'GET',
-                        url: '/resources/registries/public/' + repo + '/info'
+                        url: '/resources/registries/public/repositories/' + repo + '/info'
                     }).then(function (response){
                         return response.data
                     }, function(response){
@@ -23,22 +23,24 @@ angular.module('myImage', [])
         //Initialize
         dockerRegistryService.retrieveRepoInfo($scope.repoName).then(function(result) {
             $scope.repository = result;
-            $scope.status = 'invalid';
+            var status = 'invalid';
             var tags = [];
             if (result != null) {
                 var repoURL = ($scope.repoName.indexOf('/') >= 0)? 'u/' + $scope.repoName : '_/' + $scope.repoName;
                 $scope.repository.url = 'https://registry.hub.docker.com/' + repoURL + '/';
-                $scope.status = 'not_found';
+                status = 'not_found';
                 for (var i = 0, len = result.images.length; i < len; i ++) {
                     var image = result.images[i];
-                    if (image.id = $scope.imageId) {
-                        $scope.status = 'found';
+                    var flag = false;
+                    if (image.id == $scope.imageId) {
+                        status = 'found';
+                        flag = true;
                     }
                     if (image.tags) {
                         for (var j = 0, n = image.tags.length; j < n; j++) {
                             var tag = image.tags[j];
-                            if (tag === $scope.tag) {
-                                $scope.status = 'matched';
+                            if (tag == $scope.tag && flag) {
+                                status = 'matched';
                             }
                             tags.push(tag);
                         }
@@ -46,6 +48,7 @@ angular.module('myImage', [])
                 }
                 $scope.hasResult = true;
             }
+            $scope.status = status;
             $scope.isReady = true;
             $scope.repository.tags = tags;
         });

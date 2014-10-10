@@ -19,7 +19,6 @@ DockerHub.prototype.initialize = function(registryConfig) {
         console.log("Invalid user credential for Docker Hub. Please change it in config.json");
         process.exit(1);
     });
-    //this.listRepoTags('centos');
 };
 
 DockerHub.prototype.login = function() {

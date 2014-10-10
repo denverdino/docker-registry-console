@@ -22,6 +22,16 @@ module.exports = function(publicRegistry) {
         }
     };
 
+    var handleSearchRepos = function(req, res) {
+        var params = url.parse(req.url, true).query;
+        registry.searchRepositories(params.q).then(function (tags) {
+            processResult(res, tags);
+        });
+    };
+
+    router.get('/', handleSearchRepos);
+
+
     var handleListRepoTags = function(req, res) {
         registry.listRepoTags(getRepoName(req)).then(function (tags) {
             processResult(res, tags);

@@ -28,7 +28,7 @@ CommonDockerService.prototype.buildRequestOptions = function(path, query, token)
         options.headers['Authorization'] = this.authorizationHeader;
         options.headers['X-Docker-Token'] = 'true';
     }
-    //console.log(options.url);
+    console.log(options.url);
     return options;
 };
 
@@ -46,6 +46,7 @@ CommonDockerService.prototype.searchRepositories = function(query) {
     var that = this;
     return new Promise(function(resolve, reject) {
         request(options, function (error, response, body) {
+            //that.logRequest(this, response, true, true);
             if (!error && response.statusCode == 200) {
                 var responseObject = JSON.parse(body);
                 resolve(responseObject.results);
@@ -158,7 +159,7 @@ CommonDockerService.prototype.retrieveRepository = function(repoName) {
         var result = null;
         repoName = that.getRepoNameWithNS(repoName);
         for (var i = 0; i < repositories.length; i++) {
-            var name = repositories[i].name;
+            var name = that.getRepoNameWithNS(repositories[i].name);
             if (repoName === name) { //Found
                 result = repositories[i];
                 break;

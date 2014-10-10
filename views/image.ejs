@@ -40,7 +40,7 @@
                     <h3 class="panel-title">Author</h3>
                 </div>
                 <div class="panel-body">
-                    <%= image.author %>
+                    <%= (image.author)? image.author: '' %>
                 </div>
             </div>
         </div>
@@ -52,8 +52,8 @@
                 <!-- Table -->
                 <table class="table">
                     <tbody>
-                    <tr><td class="col-md-3">OS</td><td><%= image.os %></td></tr>
-                    <tr><td class="col-md-3">Architecture</td><td><%= image.architecture %></td></tr>
+                    <tr><td class="col-md-3">OS</td><td><%= (image.os)? image.os: '' %></td></tr>
+                    <tr><td class="col-md-3">Architecture</td><td><%= (image.architecture)? image.architecture: '' %></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -183,7 +183,7 @@
                 </tbody>
             </table>
             <span class="label label-danger" ng-show="status === 'invalid'">The repository "{{ repoName }}" is not found in Docker Hub. </span>
-            <div ng-show="!isReady">&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading... </div>
+            <div ng-show="!isReady">&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading... <br/></div>
         </div>
     </div>
     <%

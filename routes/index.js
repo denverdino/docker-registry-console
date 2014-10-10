@@ -19,6 +19,7 @@ router.get('/', function(req, res) {
     res.render('home', { params: params});
 });
 
+/* GET image details from private registry. */
 router.get('/images/:id', function(req, res) {
     privateRegistry.retrieveImageDetails(req.params.id).then(function(image) {
         privateRegistry.retrieveImageAncestry(req.params.id).then(function (layers) {
@@ -48,5 +49,11 @@ router.get('/images/:id', function(req, res) {
     })
 });
 
+
+/* GET docker hub page. */
+router.get('/hub', function(req, res) {
+    var params = url.parse(req.url, true).query;
+    res.render('dockerHub', { params: params});
+});
 
 module.exports = router;
