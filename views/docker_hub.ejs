@@ -5,39 +5,21 @@
     <% include header.ejs %>
 </head>
 <body role="document">
-<div class="container">
-    <!-- Static navbar -->
-    <div class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Docker Hub</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Images</a></li>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="#">About</a></li>
-                </ul>
-            </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
+<div class="container" ng-controller="repositoriesController">
+    <% include navbar.ejs %>
+    <div class="page-header">
+        <h1>Repositories <small> Docker Hub</small></h1>
     </div>
 
-    <!-- Main component for a primary marketing message or call to action -->
-    <p><h1>Repositories</h1></p>
-    <div class="panel panel-default" ng-controller="repositoriesController">
-        <form class="navbar-form navbar-left" name="searchForm">
-            <div class="form-group">
-                <input type="text" class="form-control" ng-model="searchTerm" autofocus="true" placeholder="Search the registry" />
-            </div>
-            <button type="submit" class="btn btn-default" ng-click="search()"><span class="glyphicon glyphicon-search"></span> Search</button>
-            <span ng-show="!isReady">&nbsp;&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading...</span>
-        </form>
+    <form class="navbar-form navbar-left" name="searchForm">
+        <div class="form-group">
+            <input type="text" class="form-control" ng-model="searchTerm" autofocus="true" placeholder="Search the registry" />
+        </div>
+        <button type="submit" class="btn btn-default" ng-click="search()"><span class="glyphicon glyphicon-search"></span> Search</button>
+        <span ng-show="!isReady">&nbsp;&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading ...</span>
+    </form>
+
+    <div class="panel panel-default" >
         <table class="table">
             <thead>
                 <tr>
@@ -61,13 +43,13 @@
             </tfoot>
             <tbody>
                 <tr ng-repeat="repository in items">
-                    <td>{{ repository.name }}</td>
+                    <td><a href="/docker_hub/repositories/{{ repository.name }}">{{ repository.name }}</a></td>
                     <td class="td-description">{{ repository.description }}</td>
                     <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_automated"></span></td>
                     <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_official"></span></td>
                     <td>{{ repository.star_count }}</td>
                     <td>
-                        <a href="#"><span class="glyphicon glyphicon-wrench"></span></a>
+                        <a href="/docker_hub/repositories/{{ repository.name }}"><span class="glyphicon glyphicon-wrench"></span></a>
                     </td>
                 </tr>
             </tbody>

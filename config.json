@@ -19,5 +19,24 @@
 		"apiVersion": "v1",
 		"user": "USER_NAME",
 		"password": "PASSWORD"
-	}
+	},
+    "menu": [
+        {
+            "label": "Private",
+            "href": "/private_registry"
+        },
+        {
+            "label": "Public",
+            "href": "/docker_hub"
+        },
+        {
+            "label": "Settings",
+            "href": "#"
+        },
+        {
+            "label": "About",
+            "href": "#"
+        }
+    ]
 }
+

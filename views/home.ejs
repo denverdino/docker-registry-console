@@ -6,30 +6,12 @@
 </head>
 <body role="document">
 <div class="container">
-    <!-- Static navbar -->
-    <div class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Private Docker Registry</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Images</a></li>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="#">About</a></li>
-                </ul>
-            </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-    </div>
+    <% include navbar.ejs %>
 
+    <div class="page-header">
+        <h1>Docker images <small> private registry</small></h1>
+    </div>
     <!-- Main component for a primary marketing message or call to action -->
-    <p><h2>Docker images</h2></p>
     <div class="panel panel-default" ng-controller="imagesController">
         <form class="navbar-form navbar-left" name="searchForm">
             <div class="form-group">
@@ -59,12 +41,12 @@
             </tfoot>
             <tbody>
                 <tr ng-repeat="item in items">
-                    <td><a href="/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}">{{ item.displayName }}</a></td>
+                    <td><a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}">{{ item.displayName }}</a></td>
                     <td>{{ item.tag }}</td>
                     <td>{{ item.last_update * 1000 | date:'short' }}</td>
                     <td>{{ item.docker_version }}</td>
                     <td>
-                        <a href="/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
+                        <a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
                         <a href="#"><span class="glyphicon glyphicon-remove"></span></a>
                     </td>
                 </tr>

@@ -72,5 +72,15 @@ module.exports = function(publicRegistry) {
 
     }
 
+    var handleRetrieveRepoTagsInfo = function(req, res) {
+        registry.retrieveRepositoryDetails(getRepoName(req)).then(function (info) {
+            processResult(res, info);
+        });
+    };
+
+    router.get('/:repoId/details', handleRetrieveRepoTagsInfo);
+    router.get('/:namespace/:repoId/details', handleRetrieveRepoTagsInfo);
+
+
     return router;
 };

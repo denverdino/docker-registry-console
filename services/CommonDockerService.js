@@ -160,7 +160,7 @@ CommonDockerService.prototype.retrieveRepository = function(repoName) {
         repoName = that.getRepoNameWithNS(repoName);
         for (var i = 0; i < repositories.length; i++) {
             var name = that.getRepoNameWithNS(repositories[i].name);
-            if (repoName === name) { //Found
+            if (repoName == name) { //Found
                 result = repositories[i];
                 break;
             }
@@ -190,5 +190,86 @@ CommonDockerService.prototype.getRepoNameWithNS = function(repoName) {
     return (repoName.indexOf('/') >= 0)? repoName : this.DEFAULT_NAMESPACE + repoName;
 };
 
+
+CommonDockerService.prototype.tagsToList = function(tags) {
+    var items = [];
+    for (var name in tags) {
+        var item = {
+            name: name,
+            id: tags[name]
+        };
+        items.push(item);
+    }
+    return items;
+};
+
+
+CommonDockerService.prototype.retrieveImageDetails = function(id, token) {
+    var options = this.buildRequestOptions('/images/' + id + '/json', null, token);
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        request(options, function (error, response, body) {
+            //that.logRequest(this, response, true, true);
+            if (!error && response.statusCode == 200) {
+                var responseObject = JSON.parse(body);
+                resolve(responseObject);
+            }
+            //TODO error handling
+        })
+    });
+};
+
+CommonDockerService.prototype._retrieveRepositoryDetails = function(repoName, registry) {
+    var that = this;
+    if (registry) {
+        return this.retrieveRepository(repoName).then(function(repository) {
+            if (repository) {
+                return that._listRepoImages(repoName).then(function (result) {
+                    var token = result.token;
+                    var images = result.images;
+                    return registry._listRepoTagsWithToken(repoName, token).then(function (tags) {
+                        var tagList = registry.tagsToList(tags);
+                        return Promise.all(
+                            tagList.map(function (tag) {
+                                return registry.retrieveImageDetails(tag.id, token).then(function (info) {
+                                    info.repository = repoName;
+                                    info.tag = tag.name;
+                                    return info;
+                                });
+                            })
+                        ).then(function(tagsInfo) {
+                            repository.tags = tagsInfo;
+                            return repository;
+                        });
+                    });
+                });
+            }
+            return null;
+        })
+    } else {
+        return this.retrieveRepository(repoName).then(function(repository) {
+            if (repository) {
+                return that._listRepoTagsWithToken(repoName).then(function (tags) {
+                    var tagList = that.tagsToList(tags);
+                    return Promise.all(
+                        tagList.map(function (tag) {
+                            return that.retrieveImageDetails(tag.id).then(function (info) {
+                                info.repository = repoName;
+                                info.tag = tag.name;
+                                return info;
+                            });
+                        })
+                    ).then(function(tagsInfo) {
+                        repository.tags = tagsInfo;
+                        return repository;
+                    })
+                });
+            } else {
+                return null;
+            }
+        })
+    }
+
+};
 
 module.exports = CommonDockerService;

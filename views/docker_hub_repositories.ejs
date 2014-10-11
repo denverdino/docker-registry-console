@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html ng-app="myRepository">
+<head>
+    <title>Docker Image</title>
+    <% include header.ejs %>
+</head>
+<body role="document">
+<div class="container" ng-init="repoName='<%= repoName %>'">
+    <% include navbar.ejs %>
+    <ol class="breadcrumb">
+        <li><a href="/docker_hub">Docker Hub</a></li>
+        <li><a href="#">repositories</a></li>
+        <li><a href="#"><%= repoName %></a></li>
+    </ol>
+
+    <div ng-controller="repositoryTagsController">
+        <div class="page-header">
+            <h1><%= repoName %> <small>repository</small></h1>
+        </div>
+        <div ng-show="!isReady">&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading ... <br/></div>
+        <div ng-show="isReady">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Repository information</h3>
+                </div>
+                <!-- Table -->
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td class="col-md-2">Description</td>
+                            <td class="col-md-10 td-description" colspan="3">{{ details.description }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-2">Link to Docker Hub</td>
+                            <td class="col-md-4"><a href="{{ details.url }}" target="_blank"> {{ details.name }} </a></td>
+                            <td class="col-md-2">Stars</td>
+                            <td class="col-md-4"><span class="glyphicon glyphicon-star icon-star"></span> {{ details.star_count }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-2">Automatic build</td>
+                            <td class="col-md-4"><span class="glyphicon glyphicon-ok icon-success" ng-show="details.is_automated"></span></td>
+                            <td class="col-md-2">Official build</td>
+                            <td class="col-md-4"><span class="glyphicon glyphicon-ok icon-success" ng-show="details.is_official"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p></p>
+            <tabset ng-show="isReady" type="pills">
+                <tab ng-repeat="image in details.tags" heading="{{image.tag}}" active="image.isLatest">
+                    <div>
+                        <p></p>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Tag information</h3>
+                                    </div>
+                                    <!-- Table -->
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="col-md-2">Author</td>
+                                                <td class="col-md-10" colspan="3">{{ image.author }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="col-md-2">OS</td>
+                                                <td class="col-md-4">{{ image.os }}</td>
+                                                <td class="col-md-2">Architecture</td>
+                                                <td class="col-md-4">{{ image.architecture }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Exposed ports</h3>
+                                    </div>
+                                    <!-- Table -->
+                                    <table class="table">
+                                        <tbody>
+                                            <tr ng-repeat="portInfo in image.config.ExposedPortsInfo">
+                                                <td class="col-md-3">{{ portInfo.port }}</td>
+                                                <td>{{ portInfo.protocol }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Volumes</h3>
+                                    </div>
+                                    <!-- Table -->
+                                    <table class="table">
+                                        <tbody>
+                                            <tr ng-repeat="volume in image.config.Volumes">
+                                                <td>{{ volume }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Environment variables</h3>
+                            </div>
+                            <!-- Table -->
+                            <table class="table">
+                                <tbody>
+                                    <tr ng-repeat="env in image.config.EnvInfo">
+                                        <td class="col-md-3">{{env.name}}</td>
+                                        <td>{{env.value}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </tab>
+            </tabset>
+        </div>
+    </div>
+</div> <!-- /container -->
+<% include footer.ejs %>
+<script src = "/javascripts/controllers/repositoryContollers.js"></script>
+</body>
+</html>
+

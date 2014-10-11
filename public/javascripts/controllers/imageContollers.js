@@ -1,4 +1,4 @@
-angular.module('myImage', [])
+angular.module('myImage', ['ui.bootstrap'])
     .factory('dockerRegistryService', ['$http', function($http) {
         var dockerRegistryService = {
             retrieveRepoInfo: function(repo) {

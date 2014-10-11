@@ -118,19 +118,6 @@ DockerImageRegistry.prototype._searchRepoImagesWithTag = function(query) {
     });
 };
 
-DockerImageRegistry.prototype.retrieveImageDetails = function(id) {
-    var options = this.buildRequestOptions('/images/' + id + '/json');
-    return new Promise(function(resolve, reject) {
-        request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                var responseObject = JSON.parse(body);
-                resolve(responseObject);
-            }
-            //TODO error handling
-        })
-    });
-};
-
 DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
     var options = this.buildRequestOptions('/images/' + id + '/ancestry');
     return new Promise(function(resolve, reject) {
@@ -186,6 +173,10 @@ DockerImageRegistry.prototype.searchRepoImagesWithTag = function(query) {
         });
         return items;
     });
+};
+
+DockerImageRegistry.prototype.retrieveRepositoryDetails = function(repoName) {
+    return this._retrieveRepositoryDetails(repoName, null);
 };
 
 DockerImageRegistry.privateRegistry = new DockerImageRegistry(config.privateRegistry);
