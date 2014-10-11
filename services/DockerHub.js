@@ -14,11 +14,11 @@ util.inherits(DockerHub, CommonDockerService);
 
 DockerHub.prototype.initialize = function(registryConfig) {
     this.initializeConfig(registryConfig);
-//    //Test credential
-//    this.login().then(null, function(result) {
-//        console.log("Invalid user credential for Docker Hub. Please change it in config.json");
-//        process.exit(1);
-//    });
+    //Test credential
+    this.login().then(null, function(result) {
+        console.log("Invalid user credential for Docker Hub. Please change it in config.json");
+        process.exit(1);
+    });
 };
 
 DockerHub.prototype.login = function() {
