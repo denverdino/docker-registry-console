@@ -32,13 +32,20 @@ angular.module('myRepository', ['ui.bootstrap'])
                     if (image.config.ExposedPorts) {
                         var portsInfo = [];
                         for (var port in image.config.ExposedPorts) {
-                            var portInfo = port.split('/')
+                            var portInfo = port.split('/');
                             portsInfo.push ({
                                 port: portInfo[0],
                                 protocol: portInfo[1]
                             })
                         }
                         image.config.ExposedPortsInfo = portsInfo;
+                    }
+                    if (image.config.Volumes) {
+                        var volumesInfo = [];
+                        for (var volume in image.config.Volumes) {
+                            volumesInfo.push (volume)
+                        }
+                        image.config.VolumesInfo = volumesInfo;
                     }
                     if (image.config.Env) {
                         var envInfo = [];

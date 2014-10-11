@@ -114,12 +114,12 @@
             <tbody>
             <% for (var i = 0; i < layers.length; i++) {
                 var layer = layers[i];
-                var href = (i === 0)? '#': '/images/' + layer.id;
+                var href = (i === 0)? '#': '/private_registry/images/' + layer.id;
                 var label = (layer.displayName) ? layer.id + ' (' + layer.displayName + ')' : layer.id;
             %>
                 <tr>
                     <td>
-                        <a href="<%= href %>">&nbsp;<span class="glyphicon glyphicon-arrow-right"></span></a>
+                        &nbsp;<a href="<%= href %>"><span class="glyphicon glyphicon-arrow-right"></span></a>
                         <% if (i > 0) { %>
                         <a href="<%= href %>"><%= label %></a>
                         <% } else { %>
@@ -168,7 +168,7 @@
                 </tbody>
             </table>
             <span class="label label-danger" ng-show="status === 'invalid'">The repository "{{ repoName }}" is not found in Docker Hub. </span>
-            <div ng-show="!isReady">&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading... <br/></div>
+            <div ng-show="!isReady"><p>&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading ... </p></div>
         </div>
     </div>
     <%
