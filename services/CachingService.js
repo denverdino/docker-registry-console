@@ -1,8 +1,9 @@
 var redis = require("redis");
+var config = require('../utils/config');
 
 var CachingService = function() {
     console.log("Creating redis client");
-    var client = redis.createClient();
+    var client = redis.createClient(config.redis.port, config.redis.host, {});
     this.client = client;
 
     client.on('error', function (err) {
