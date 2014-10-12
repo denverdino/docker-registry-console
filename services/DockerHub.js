@@ -23,17 +23,7 @@ DockerHub.prototype.initialize = function(registryConfig) {
 
 DockerHub.prototype.login = function() {
     var options = this.buildRequestOptions('/users');
-
-    return new Promise(function(resolve, reject) {
-        request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                var responseObject = JSON.parse(body);
-                resolve(true);
-            } else {
-                reject(false);
-            }
-        })
-    });
+    return this.sendRequest(options);
 };
 
 DockerHub.prototype.listRepoImagesWithTag = function(repoName) {

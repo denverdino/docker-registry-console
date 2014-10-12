@@ -44,66 +44,57 @@ CommonDockerService.prototype.searchRepositories = function(query) {
 
     var options = this.buildRequestOptions('/search', queryString);
     var that = this;
-    return new Promise(function(resolve, reject) {
-        request(options, function (error, response, body) {
-            //that.logRequest(this, response, true, true);
-            if (!error && response.statusCode == 200) {
-                var responseObject = JSON.parse(body);
-                resolve(responseObject.results);
-            }
-        })
+    return this.sendRequest(options).then(function(result) {
+        return result.results;
     });
 };
 
 
 CommonDockerService.prototype._listRepoImages = function(repoName) {
-    var imageOptions = this.buildRequestOptions('/repositories/' + repoName + '/images');
+    var options = this.buildRequestOptions('/repositories/' + repoName + '/images');
+    return this.sendRequest(options).then(function(images) {
+        var result = {
+            token: options.response.headers['x-docker-token'],
+            images: images
+        };
+        return result;
+    });
+};
+
+CommonDockerService.prototype.sendRequest = function(options, log) {
     var that = this;
     return new Promise(function (resolve, reject) {
-        request(imageOptions, function (error, response, body) {
-            //that.logRequest(this, response, true, true);
-            if (!error && response.statusCode == 200) {
-                var result = {
-                    token: response.headers['x-docker-token'],
-                    images: JSON.parse(body)
-                };
-                resolve(result);
+        request(options, function (error, response, body) {
+            if (log) {
+                that.logRequest(this, response, true, true);
+            }
+            if (error) {
+                reject(error);
+            } else if (response.statusCode != 200) {
+                error = new Error("Unexpected status code: " + res.statusCode);
+                error.res = res;
+                reject(err);
+            } else {
+                var json = JSON.parse(body);
+                options.response = response;
+                resolve(json);
             }
         })
     });
 };
 
-
 CommonDockerService.prototype._listRepoTagsWithToken = function(repoName, token) {
     var options = this.buildRequestOptions('/repositories/' + repoName + '/tags', null, token);
     var that = this;
-    return new Promise(function (resolve, reject) {
-        request(options, function (error, response, body) {
-            //that.logRequest(this, response, true, true);
-            if (!error && response.statusCode == 200) {
-                var tags = JSON.parse(body);
-                resolve(tags);
-            }
-        })
-    });
+    return this.sendRequest(options);
 };
 
 CommonDockerService.prototype._retrieveRepoTagInfo = function(repoName, tagName, token, tag) {
     var options = this.buildRequestOptions('/repositories/' + repoName + '/tags/' + tagName + '/json', null, token);
     var that = this;
-    return new Promise(function (resolve, reject) {
-        request(options, function (error, response, body) {
-            //that.logRequest(this, response, true, true);
-            if (!error && response.statusCode == 200) {
-                var json = JSON.parse(body);
-                if (tag) {
-                    Object.assign(tag, json);
-                    resolve(tag);
-                } else {
-                    resolve(json);
-                }
-            }
-        })
+    return (!tag) ? this.sendRequest(options) : this.sendRequest(options).then(function(json){
+        Object.assign(tag, json);
+        return tag;
     });
 };
 
@@ -143,7 +134,7 @@ CommonDockerService.prototype._listRepoTags = function(repoName, registry) {
 };
 
 CommonDockerService.prototype.logRequest = function(request, response, headers, body) {
-    console.log('Request: %s %s %d', request.method, request.uri.href, response.statusCode, true);
+    console.log('Request: %s %s %d', request.method, request.uri.href, response.statusCode);
     if (headers) {
         console.log('Headers: %j', response.headers);
     }
@@ -207,16 +198,7 @@ CommonDockerService.prototype.tagsToList = function(tags) {
 CommonDockerService.prototype.retrieveImageDetails = function(id, token) {
     var options = this.buildRequestOptions('/images/' + id + '/json', null, token);
     var that = this;
-    return new Promise(function(resolve, reject) {
-        request(options, function (error, response, body) {
-            //that.logRequest(this, response, true, true);
-            if (!error && response.statusCode == 200) {
-                var responseObject = JSON.parse(body);
-                resolve(responseObject);
-            }
-            //TODO error handling
-        })
-    });
+    return this.sendRequest(options);
 };
 
 CommonDockerService.prototype._retrieveRepositoryDetails = function(repoName, registry) {

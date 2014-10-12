@@ -83,23 +83,18 @@ DockerImageRegistry.prototype.retrieveRepoTags = function(repo) {
     var repoName = repo.name;
     var that = this;
     var options = this.buildRequestOptions('/repositories/' + repoName + '/tags');
-    return new Promise(function(resolve, reject) {
-        request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                var responseObject = JSON.parse(body);
-                var result = [];
-                for (var tag in responseObject) {
-                    var image = {
-                        'name': repoName,
-                        'displayName': that.getDisplayName(repoName),
-                        'tag': tag,
-                        'id': responseObject[tag]
-                    };
-                    result.push(image)
-                }
-                resolve(result);
-            }
-        })
+    return this.sendRequest(options).then(function (responseObject) {
+        var result = [];
+        for (var tag in responseObject) {
+            var image = {
+                'name': repoName,
+                'displayName': that.getDisplayName(repoName),
+                'tag': tag,
+                'id': responseObject[tag]
+            };
+            result.push(image)
+        }
+        return result;
     });
 };
 
@@ -120,14 +115,7 @@ DockerImageRegistry.prototype._searchRepoImagesWithTag = function(query) {
 
 DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
     var options = this.buildRequestOptions('/images/' + id + '/ancestry');
-    return new Promise(function(resolve, reject) {
-        request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                var responseObject = JSON.parse(body);
-                resolve(responseObject);
-            }
-        })
-    });
+    return this.sendRequest(options);
 };
 
 DockerImageRegistry.prototype.searchRepoImagesWithTag = function(query) {
