@@ -1,5 +1,6 @@
 var request = require('request');
-var Promise = require("es6-promise").Promise;
+var cachingService = require('./CachingService');
+
 
 var CommonDockerService = function() {
 };
@@ -54,7 +55,7 @@ CommonDockerService.prototype._listRepoImages = function(repoName) {
     var options = this.buildRequestOptions('/repositories/' + repoName + '/images');
     return this.sendRequest(options).then(function(images) {
         var result = {
-            token: options.response.headers['x-docker-token'],
+            token: options['x-docker-token'],
             images: images
         };
         return result;
@@ -63,23 +64,40 @@ CommonDockerService.prototype._listRepoImages = function(repoName) {
 
 CommonDockerService.prototype.sendRequest = function(options, log) {
     var that = this;
-    return new Promise(function (resolve, reject) {
-        request(options, function (error, response, body) {
-            if (log) {
-                that.logRequest(this, response, true, true);
+    return cachingService.getJSON(options.url).then(function (result) {
+        if (result) {
+            var token = result['x-docker-token'];
+            if (token) {
+                options['x-docker-token'] = token;
             }
-            if (error) {
-                reject(error);
-            } else if (response.statusCode != 200) {
-                error = new Error("Unexpected status code: " + res.statusCode);
-                error.res = res;
-                reject(err);
-            } else {
-                var json = JSON.parse(body);
-                options.response = response;
-                resolve(json);
-            }
-        })
+            return result.body;
+        }
+        return new Promise(function (resolve, reject) {
+            request(options, function (error, response, body) {
+                if (log) {
+                    that.logRequest(this, response, true, true);
+                }
+                if (error) {
+                    reject(error);
+                } else if (response.statusCode != 200) {
+                    error = new Error("Unexpected status code: " + res.statusCode);
+                    error.res = res;
+                    reject(err);
+                } else {
+                    var json = JSON.parse(body);
+                    var cacheValue = {
+                        body: json
+                    };
+                    var token = response.headers['x-docker-token'];
+                    if (token) {
+                        cacheValue['x-docker-token'] = token;
+                        options['x-docker-token'] = token; //Pass to future processing
+                    }
+                    cachingService.setJSON(options.url, cacheValue, that.config.ttl);
+                    resolve(json);
+                }
+            })
+        });
     });
 };
 

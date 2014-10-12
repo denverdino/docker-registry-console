@@ -1,6 +1,5 @@
 var util = require('util');
 var request = require('request');
-var Promise = require("es6-promise").Promise;
 var CommonDockerService = require('./CommonDockerService');
 var config = require('../utils/config');
 
@@ -20,7 +19,7 @@ DockerImageRegistry.prototype.initialize = function(registryConfig) {
     };
 
     var that = this;
-    if (registryConfig.cache) {
+    if (registryConfig.layerIndex) {
         //Build in memory cache and refresh every minute.
         this.buildIndex();
         setInterval(function() {
@@ -50,7 +49,7 @@ DockerImageRegistry.prototype.buildIndex = function() {
                 }
             }
         });
-        console.log("Refresh cache completed!");
+        console.log("Refresh layer index completed!");
         that.cachedData = result;
         return result;
     });
