@@ -5,23 +5,12 @@ var url = require("url");
 var express = require('express');
 var DockerImageRegistry = require('../services/DockerImageRegistry');
 var router = express.Router();
-var menu = require('../utils/config').menu;
+var view = require('../utils/view');
+
 
 
 var privateRegistry = DockerImageRegistry.privateRegistry;
 
-function isEmptyObject(obj) {
-    return obj == null || !Object.keys(obj).length;
-}
-
-function render(req, res, view, params) {
-    if (!params) {
-        params = {};
-    }
-    params.menu = menu;
-    params.requestUrl = req.url;
-    res.render(view, params);
-}
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -32,7 +21,7 @@ router.get('/', function(req, res) {
 /* GET home page. */
 router.get('/private_registry', function(req, res) {
     var params = url.parse(req.url, true).query;
-    render(req, res, 'home', { params: params});
+    view.render(req, res, 'home', { params: params});
 });
 
 /* GET image details from private registry. */
@@ -56,7 +45,7 @@ router.get('/private_registry/images/:id', function(req, res) {
                 layerInfoList.push({id: layer, displayName: displayName})
             });
             var params = url.parse(req.url, true).query;
-            render(req, res, 'image', {
+            view.render(req, res, 'image', {
                 image: image,
                 layers: layerInfoList,
                 params: params
@@ -69,7 +58,7 @@ router.get('/private_registry/images/:id', function(req, res) {
 /* GET docker hub page. */
 router.get('/docker_hub', function(req, res) {
     var params = url.parse(req.url, true).query;
-    render(req, res, 'docker_hub', { params: params});
+    view.render(req, res, 'docker_hub', { params: params});
 });
 
 
@@ -79,7 +68,7 @@ var getRepoName = function(req) {
 
 var handleRetrieveRepoInfo = function(req, res) {
     var repoName = getRepoName(req);
-    render(req, res, 'docker_hub_repositories', {
+    view.render(req, res, 'docker_hub_repositories', {
         repoName: repoName
     });
 };

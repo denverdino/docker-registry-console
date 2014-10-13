@@ -3,6 +3,7 @@ var DockerImageRegistry = require('../../services/DockerImageRegistry');
 var dockerHub = require('../../services/DockerHub');
 var express = require('express');
 var url = require("url");
+var view = require('../../utils/view');
 
 module.exports = function(publicRegistry) {
 
@@ -14,47 +15,31 @@ module.exports = function(publicRegistry) {
         return (req.params.namespace)? req.params.namespace + '/' + req.params.repoId: req.params.repoId;
     };
 
-    var processResult = function(res, result) {
-        if (result) {
-            res.json(result);
-        } else {
-            res.status(404).send('Not found');
-        }
-    };
-
     var handleSearchRepos = function(req, res) {
         var params = url.parse(req.url, true).query;
-        registry.searchRepositories(params.q).then(function (tags) {
-            processResult(res, tags);
-        });
+        view.renderJSONPromise(res, registry.searchRepositories(params.q));
     };
 
     router.get('/', handleSearchRepos);
 
 
     var handleListRepoTags = function(req, res) {
-        registry.listRepoTags(getRepoName(req)).then(function (tags) {
-            processResult(res, tags);
-        });
+        view.renderJSONPromise(res, registry.listRepoTags(getRepoName(req)));
     };
 
     router.get('/:repoId/tags', handleListRepoTags);
     router.get('/:namespace/:repoId/tags', handleListRepoTags);
 
     var handleRetrieveRepoInfo = function(req, res) {
-        registry.retrieveRepoWithImages(getRepoName(req)).then(function (info) {
-            processResult(res, info);
-        });
-    };
+        view.renderJSONPromise(res, registry.retrieveRepoWithImages(getRepoName(req)));
+    }
 
     router.get('/:repoId/info', handleRetrieveRepoInfo);
     router.get('/:namespace/:repoId/info', handleRetrieveRepoInfo);
 
 
     var handleListRepoImages = function(req, res) {
-        registry.listRepoImagesWithTag(getRepoName(req)).then(function (images) {
-            processResult(res, images);
-        });
+        view.renderJSONPromise(res, registry.listRepoImagesWithTag(getRepoName(req)));
     };
 
     router.get('/:repoId/images', handleListRepoImages);
@@ -62,9 +47,7 @@ module.exports = function(publicRegistry) {
 
     if (!publicRegistry) { //Private Registry Only.
         var handleRetrieveImageFromDockerHub = function(req, res) {
-            dockerHub.retrieveImageFromDockerHub(getRepoName(req), req.params.imageId).then(function (image) {
-                processResult(res, image);
-            });
+            view.renderJSONPromise(res, dockerHub.retrieveImageFromDockerHub(getRepoName(req), req.params.imageId));
         };
 
         router.get('/:repoId/images/:imageId', handleRetrieveImageFromDockerHub);
@@ -73,9 +56,7 @@ module.exports = function(publicRegistry) {
     }
 
     var handleRetrieveRepoTagsInfo = function(req, res) {
-        registry.retrieveRepositoryDetails(getRepoName(req)).then(function (info) {
-            processResult(res, info);
-        });
+        view.renderJSONPromise(res, registry.retrieveRepositoryDetails(getRepoName(req)));
     };
 
     router.get('/:repoId/details', handleRetrieveRepoTagsInfo);
