@@ -1,3 +1,5 @@
+"use strict";
+
 var menu = require('./config').menu;
 
 var View = function() {

@@ -1,4 +1,4 @@
-
+"use strict";
 
 if (!String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {

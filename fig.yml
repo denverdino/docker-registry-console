@@ -1,0 +1,13 @@
+web:
+  build: .
+  links:
+   - redis
+  ports:
+   - "3000:3000"
+  environment:
+    PRIVATE_REGISTRY_URL: http://192.168.199.191:5000
+    DOCKER_HUB_USER: USER_NAME
+    DOCKER_HUB_PASSWORD: PASSWORD
+redis:
+  image: redis
+

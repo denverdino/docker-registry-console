@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util');
 var request = require('request');
 var CommonDockerService = require('./CommonDockerService');

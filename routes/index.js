@@ -1,3 +1,5 @@
+'use strict';
+
 require('../utils/polyfill');
 
 var http = require("http");

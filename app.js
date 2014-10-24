@@ -1,3 +1,5 @@
+'use strict';
+
 //polyfill for ES6
 require('./utils/polyfill.js');
 require('es6-promise').polyfill();

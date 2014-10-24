@@ -1,3 +1,5 @@
+'use strict';
+
 var request = require('request');
 var cachingService = require('./CachingService');
 
@@ -29,7 +31,7 @@ CommonDockerService.prototype.buildRequestOptions = function(path, query, token)
         options.headers['Authorization'] = this.authorizationHeader;
         options.headers['X-Docker-Token'] = 'true';
     }
-    console.log(options.url);
+
     return options;
 };
 
@@ -64,6 +66,7 @@ CommonDockerService.prototype._listRepoImages = function(repoName) {
 
 CommonDockerService.prototype.sendRequest = function(options, log) {
     var that = this;
+
     return cachingService.getJSON(options.url).then(function (result) {
         if (result) {
             var token = result['x-docker-token'];
@@ -74,14 +77,14 @@ CommonDockerService.prototype.sendRequest = function(options, log) {
         }
         return new Promise(function (resolve, reject) {
             request(options, function (error, response, body) {
-                if (log) {
+                if (log || error || response.statusCode != 200) {
                     that.logRequest(this, response, true, true);
                 }
                 if (error) {
                     reject(error);
                 } else if (response.statusCode != 200) {
-                    error = new Error("Unexpected status code: " + res.statusCode);
-                    error.res = res;
+                    var err = new Error("Unexpected status code: " + response.statusCode);
+                    err.status = response.statusCode;
                     reject(err);
                 } else {
                     var json = JSON.parse(body);
@@ -152,7 +155,8 @@ CommonDockerService.prototype._listRepoTags = function(repoName, registry) {
 };
 
 CommonDockerService.prototype.logRequest = function(request, response, headers, body) {
-    console.log('Request: %s %s %d', request.method, request.uri.href, response.statusCode);
+    console.log('Request: %s %s', request.method, request.uri.href, response.statusCode);
+    console.log('Status Code: %s %s', response.statusCode);
     if (headers) {
         console.log('Headers: %j', response.headers);
     }

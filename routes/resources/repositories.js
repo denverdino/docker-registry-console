@@ -1,3 +1,5 @@
+'use strict';
+
 var config = require('../../utils/config');
 var DockerImageRegistry = require('../../services/DockerImageRegistry');
 var dockerHub = require('../../services/DockerHub');
