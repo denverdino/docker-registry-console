@@ -7,7 +7,9 @@ Run from Source Code
 -----
 
 **Prerequisite**
+
 Install Node.js [http://nodejs.org/](http://nodejs.org/)
+
 Install Redis [http://redis.io/](http://redis.io/)
 
 **Setup** 
@@ -43,6 +45,7 @@ Install the fig [http://www.fig.sh/](http://www.fig.sh/)
 
 **Config** 
 
+Update the fig.yml according to your environment setting. 
 	
 	web:
 	  build: .
