@@ -25,11 +25,11 @@ DockerHub.prototype.initialize = function(registryConfig) {
 };
 
 DockerHub.prototype.login = function() {
-    var options = this.buildRequestOptions('/users');
+    var options = this.buildRequestOptions('/users/');
     return this.sendRequest(options);
 };
 
-DockerHub.prototype.listRepoImagesWithTag = function(repoName) {We
+DockerHub.prototype.listRepoImagesWithTag = function(repoName) {
     return this._listRepoImagesWithTag(repoName, this.registry);
 };
 

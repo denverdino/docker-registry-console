@@ -11,7 +11,15 @@ CommonDockerService.prototype.DEFAULT_NAMESPACE = 'library/';
 
 CommonDockerService.prototype.initializeConfig = function(config) {
     this.config = config;
-    this.baseURL = config.protocol + '://' + config.host + ':' + config.port + '/' + config.apiVersion;
+    var defaultPort = false;
+    if (config.port == 443 && config.protocol == 'https' || config.port == 80 && config.protocol == 'http') {
+        defaultPort = true;
+    }
+    if (defaultPort) { // No idea why Docker Hub API doesn't like port in the request URL
+        this.baseURL = config.protocol + '://' + config.host + '/' + config.apiVersion;
+    } else {
+        this.baseURL = config.protocol + '://' + config.host + ':' + config.port + '/' + config.apiVersion;
+    }
 
     if (config.user) {
         this.authorizationHeader = 'Basic ' + new Buffer(config.user + ':' + config.password).toString('base64');
@@ -22,9 +30,10 @@ CommonDockerService.prototype.initializeConfig = function(config) {
 CommonDockerService.prototype.buildRequestOptions = function(path, query, token) {
     var options = {
         url: this.baseURL + path + ((query && query != '') ? '?' + query : ''),
-        headers: {}
+        headers: {
+            'Accept': 'application/json'
+        }
     };
-
     if (token) {
         options.headers['Authorization'] = 'Token ' + token;
     } else if (this.authorizationHeader) {
