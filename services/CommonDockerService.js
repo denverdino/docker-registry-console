@@ -77,16 +77,19 @@ CommonDockerService.prototype.sendRequest = function(options, log) {
         }
         return new Promise(function (resolve, reject) {
             request(options, function (error, response, body) {
-                if (log || error || response.statusCode != 200) {
-                    that.logRequest(this, response, true, true);
-                }
                 if (error) {
+                    console.log('Failed to send request: %s %s', request.method, options.url);
+                    console.log(error);
                     reject(error);
                 } else if (response.statusCode != 200) {
+                    that.logRequest(this, response, true, true);
                     var err = new Error("Unexpected status code: " + response.statusCode);
                     err.status = response.statusCode;
                     reject(err);
                 } else {
+                    if (log) {
+                        that.logRequest(this, response, true, true);
+                    }
                     var json = JSON.parse(body);
                     var cacheValue = {
                         body: json
@@ -156,7 +159,7 @@ CommonDockerService.prototype._listRepoTags = function(repoName, registry) {
 
 CommonDockerService.prototype.logRequest = function(request, response, headers, body) {
     console.log('Request: %s %s', request.method, request.uri.href, response.statusCode);
-    console.log('Status Code: %s %s', response.statusCode);
+    console.log('Status Code: %s', response.statusCode);
     if (headers) {
         console.log('Headers: %j', response.headers);
     }

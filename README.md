@@ -58,7 +58,7 @@ Update the fig.yml according to your environment setting.
 	    DOCKER_HUB_USER: USER_NAME
 	    DOCKER_HUB_PASSWORD: PASSWORD
 	redis:
-	  image: redis
+	  image: redis:latest
 
 
 **Run** 	
