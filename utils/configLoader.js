@@ -9,26 +9,38 @@ module.exports = function(env) {
 
     try {
         config = JSON.parse(data);
-        var privateRegistryURL = env.PRIVATE_REGISTRY_URL;
-        if (privateRegistryURL) {
-            try {
-                var privateRegistry = url.parse(privateRegistryURL);
-                config.privateRegistry.protocol = privateRegistry.protocol.substr(0, privateRegistry.protocol.length - 1);
-                config.privateRegistry.host = privateRegistry.hostname;
-                if (!privateRegistry.port) {
-                    if (config.privateRegistry.protocol == 'http') {
-                        privateRegistry.port = 80;
-                    } else if (config.privateRegistry.protocol == 'https') {
-                        privateRegistry.port = 443;
-                    }
-                }
-                config.privateRegistry.port = privateRegistry.port;
+        var registryName = env.REGISTRY_NAME;
+        if (registryName) { //Handle the registry container link
+            var privateRegistry = config.privateRegistry;
+            privateRegistry.protocol = 'http';
+            privateRegistry.host = 'registry';
+            privateRegistry.port = parseInt(env.REGISTRY_PORT_5000_TCP_PORT);
+            if (!privateRegistry.port) {
+                console.log('Invalid environment variable "REGISTRY_PORT_5000_TCP_PORT".');
             }
-            catch (err) {
-                console.log('Invalid environment variable "PRIVATE_REGISTRY_URL" will be ignored');
-                console.log(err);
+        } else {
+            var privateRegistryURL = env.PRIVATE_REGISTRY_URL;
+            if (privateRegistryURL) {
+                try {
+                    var privateRegistry = url.parse(privateRegistryURL);
+                    config.privateRegistry.protocol = privateRegistry.protocol.substr(0, privateRegistry.protocol.length - 1);
+                    config.privateRegistry.host = privateRegistry.hostname;
+                    if (!privateRegistry.port) {
+                        if (config.privateRegistry.protocol == 'http') {
+                            privateRegistry.port = 80;
+                        } else if (config.privateRegistry.protocol == 'https') {
+                            privateRegistry.port = 443;
+                        }
+                    }
+                    config.privateRegistry.port = privateRegistry.port;
+                }
+                catch (err) {
+                    console.log('Invalid environment variable "PRIVATE_REGISTRY_URL" will be ignored');
+                    console.log(err);
+                }
             }
         }
+
         var dockerHubUser = env.DOCKER_HUB_USER;
         if (dockerHubUser) {
             config.dockerHub.user = dockerHubUser;

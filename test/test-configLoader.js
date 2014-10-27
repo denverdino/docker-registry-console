@@ -56,7 +56,7 @@ module.exports = {
         test.ok(config.redis.port == 12345, 'Failed to handle REDIS_PORT');
         test.done();
     },
-    testWithREDISContainer: function (test) {
+    testWithRedisContainer: function (test) {
         var env = {
             REDIS_NAME: '/web/redis',
             REDIS_PORT_6379_TCP_PORT: '8888',
@@ -66,6 +66,17 @@ module.exports = {
         var config = configLoader(env);
         test.ok(config.redis.host == 'redis', 'Failed to handle REDIS_NAME');
         test.ok(config.redis.port == 8888, 'Failed to handle REDIS_PORT_6379_TCP_PORT');
+        test.done();
+    },
+    testWithRegistryContainer: function (test) {
+        var env = {
+            PRIVATE_REGISTRY_URL: 'https://192.168.1.1:5001',
+            REGISTRY_NAME: '/web/registry',
+            REGISTRY_PORT_5000_TCP_PORT: '6666'
+        };
+        var config = configLoader(env);
+        test.ok(config.privateRegistry.host == 'registry', 'Failed to handle REDIS_NAME');
+        test.ok(config.privateRegistry.port == 6666, 'Failed to handle REDIS_PORT_6379_TCP_PORT');
         test.done();
     }
 };
