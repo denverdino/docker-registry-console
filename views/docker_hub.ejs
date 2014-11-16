@@ -34,7 +34,7 @@
             </thead>
             <tfoot>
             <tr>
-                <td>Total number: {{totalItems}}</td>
+                <td ng-bind-template="Total number: {{totalItems}}"></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -44,11 +44,11 @@
             </tfoot>
             <tbody>
                 <tr ng-repeat="repository in items">
-                    <td><a href="/docker_hub/repositories/{{ repository.name }}">{{ repository.name }}</a></td>
-                    <td class="td-description">{{ repository.description }}</td>
+                    <td><a href="/docker_hub/repositories/{{ repository.name }}" ng-bind="repository.name"></a></td>
+                    <td class="td-description" ng-bind="repository.description"></td>
                     <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_automated"></span></td>
                     <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_official"></span></td>
-                    <td>{{ repository.star_count }}</td>
+                    <td ng-bind="repository.star_count"></td>
                     <td>
                         <a href="/docker_hub/repositories/{{ repository.name }}"><span class="glyphicon glyphicon-wrench"></span></a>
                     </td>

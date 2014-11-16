@@ -146,16 +146,16 @@
                 <tbody>
                     <tr>
                         <td class="col-md-3">Repository name</td>
-                        <td><a href="{{ repository.url }}" target="_blank">{{ repository.name }}</a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star icon-star"></span> {{ repository.star_count }} </td>
+                        <td><a href="{{ repository.url }}" target="_blank" ng-bind="repository.name"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star icon-star"></span><span ng-bind="repository.star_count"></span></td>
                     </tr>
                     <tr>
-                        <td class="col-md-3">Tag</td><td>{{ tag }}
+                        <td class="col-md-3">Tag</td><td><span ng-bind="tag"></span>
                             <span class="label label-success" ng-show="status === 'matched'">Up-to-date</span>
                             <span class="label label-warning" ng-show="status === 'found'">Update available</span>
                             <span class="label label-danger" ng-show="status === 'not_found'">Not found</span>
                         </td>
                     </tr>
-                    <tr><td class="col-md-3" ng-show="isReady">Description</td><td>{{ repository.description }}</td></tr>
+                    <tr><td class="col-md-3" ng-show="isReady">Description</td><td ng-bind="repository.description"></td></tr>
                     <tr>
                         <td class="col-md-3" ng-show="isReady">Automatic build</td>
                         <td><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_automated"></span></td>
@@ -164,10 +164,10 @@
                         <td class="col-md-3" ng-show="isReady">Official repository</td>
                         <td><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_official"></span></td>
                     </tr>
-                    <tr><td class="col-md-3" ng-show="isReady">All tags</td><td>{{ repository.tags.join(', ') }}</td></tr>
+                    <tr><td class="col-md-3" ng-show="isReady">All tags</td><td ng-bind-template="{{ repository.tags.join(', ') }}"></td></tr>
                 </tbody>
             </table>
-            <span class="label label-danger" ng-show="status === 'invalid'">The repository "{{ repoName }}" is not found in Docker Hub. </span>
+            <span class="label label-danger" ng-show="status === 'invalid'" ng-bind-template="The repository '{{ repoName }}' is not found in Docker Hub. "></span>
             <div ng-show="!isReady"><p>&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading ... </p></div>
         </div>
     </div>

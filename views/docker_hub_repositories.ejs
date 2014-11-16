@@ -28,13 +28,13 @@
                     <tbody>
                         <tr>
                             <td class="col-md-2">Description</td>
-                            <td class="col-md-10 td-description" colspan="3">{{ details.description }}</td>
+                            <td class="col-md-10 td-description" colspan="3" ng-bind="details.description"></td>
                         </tr>
                         <tr>
                             <td class="col-md-2">Link to Docker Hub</td>
-                            <td class="col-md-4"><a href="{{ details.url }}" target="_blank"> {{ details.name }} </a></td>
+                            <td class="col-md-4"><a href="{{ details.url }}" target="_blank" ng-bind="details.name"></a></td>
                             <td class="col-md-2">Stars</td>
-                            <td class="col-md-4"><span class="glyphicon glyphicon-star icon-star"></span> {{ details.star_count }}</td>
+                            <td class="col-md-4"><span class="glyphicon glyphicon-star icon-star"></span> <span ng-bind="details.star_count"></span></td>
                         </tr>
                         <tr>
                             <td class="col-md-2">Automatic build</td>
@@ -62,13 +62,13 @@
                                         <tbody>
                                             <tr>
                                                 <td class="col-md-2">Author</td>
-                                                <td class="col-md-10" colspan="3">{{ image.author }}</td>
+                                                <td class="col-md-10" colspan="3" ng-bind="image.author"></td>
                                             </tr>
                                             <tr>
                                                 <td class="col-md-2">OS</td>
-                                                <td class="col-md-4">{{ image.os }}</td>
+                                                <td class="col-md-4" ng-bind="image.os"></td>
                                                 <td class="col-md-2">Architecture</td>
-                                                <td class="col-md-4">{{ image.architecture }}</td>
+                                                <td class="col-md-4" ng-bind="image.architecture"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -85,8 +85,8 @@
                                     <table class="table">
                                         <tbody>
                                             <tr ng-repeat="portInfo in image.config.ExposedPortsInfo">
-                                                <td class="col-md-3">{{ portInfo.port }}</td>
-                                                <td>{{ portInfo.protocol }}</td>
+                                                <td class="col-md-3" ng-bind="portInfo.port"></td>
+                                                <td ng-bind="portInfo.protocol"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -101,7 +101,7 @@
                                     <table class="table">
                                         <tbody>
                                             <tr ng-repeat="volume in image.config.VolumesInfo">
-                                                <td>{{ volume }}</td>
+                                                <td ng-bind="volume"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -116,8 +116,8 @@
                             <table class="table">
                                 <tbody>
                                     <tr ng-repeat="env in image.config.EnvInfo">
-                                        <td class="col-md-3">{{env.name}}</td>
-                                        <td>{{env.value}}</td>
+                                        <td class="col-md-3" ng-bind="env.name"></td>
+                                        <td ng-bind="env.value"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -132,4 +132,3 @@
 <script src = "/javascripts/controllers/repositoryContollers.js"></script>
 </body>
 </html>
-
