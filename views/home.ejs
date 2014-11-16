@@ -44,7 +44,7 @@
                 <tr ng-repeat="item in items">
                     <td><a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}" ng-bind="item.displayName"></a></td>
                     <td ng-bind="item.tag"></td>
-                    <td>{{ item.last_update * 1000 | date:'short' }}</td>
+                    <td ng-bind-template="{{ item.last_update * 1000 | date:'short' }}"></td>
                     <td ng-bind="item.docker_version"></td>
                     <td>
                         <a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
