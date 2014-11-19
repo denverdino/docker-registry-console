@@ -15,10 +15,13 @@ CommonDockerService.prototype.initializeConfig = function(config) {
     if (config.port == 443 && config.protocol == 'https' || config.port == 80 && config.protocol == 'http') {
         defaultPort = true;
     }
+
     if (defaultPort) { // No idea why Docker Hub API doesn't like port in the request URL
         this.baseURL = config.protocol + '://' + config.host + '/' + config.apiVersion;
+        this.registryHost = config.host;
     } else {
         this.baseURL = config.protocol + '://' + config.host + ':' + config.port + '/' + config.apiVersion;
+        this.registryHost = config.host + ':' + config.port;
     }
 
     if (config.user) {
@@ -118,13 +121,11 @@ CommonDockerService.prototype.sendRequest = function(options, log) {
 
 CommonDockerService.prototype._listRepoTagsWithToken = function(repoName, token) {
     var options = this.buildRequestOptions('/repositories/' + repoName + '/tags', null, token);
-    var that = this;
     return this.sendRequest(options);
 };
 
 CommonDockerService.prototype._retrieveRepoTagInfo = function(repoName, tagName, token, tag) {
     var options = this.buildRequestOptions('/repositories/' + repoName + '/tags/' + tagName + '/json', null, token);
-    var that = this;
     return (!tag) ? this.sendRequest(options) : this.sendRequest(options).then(function(json){
         Object.assign(tag, json);
         return tag;

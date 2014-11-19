@@ -15,6 +15,7 @@
     "ejs": "~0.8.5",
     "request": "2.x",
     "es6-promise": "*",
-    "redis": "*"
+    "redis": "*",
+    "dockerode": "~2.0.4"
   }
 }

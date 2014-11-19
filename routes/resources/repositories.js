@@ -3,6 +3,7 @@
 var config = require('../../utils/config');
 var DockerImageRegistry = require('../../services/DockerImageRegistry');
 var dockerHub = require('../../services/DockerHub');
+var dockerService = require('../../services/DockerService');
 var express = require('express');
 var url = require("url");
 var view = require('../../utils/view');
@@ -34,7 +35,7 @@ module.exports = function(publicRegistry) {
 
     var handleRetrieveRepoInfo = function(req, res) {
         view.renderJSONPromise(res, registry.retrieveRepoWithImages(getRepoName(req)));
-    }
+    };
 
     router.get('/:repoId/info', handleRetrieveRepoInfo);
     router.get('/:namespace/:repoId/info', handleRetrieveRepoInfo);
@@ -64,6 +65,14 @@ module.exports = function(publicRegistry) {
     router.get('/:repoId/details', handleRetrieveRepoTagsInfo);
     router.get('/:namespace/:repoId/details', handleRetrieveRepoTagsInfo);
 
+    if (!publicRegistry) {
+        var handleCreateRepoTags = function(req, res) {
+            dockerService.syncImage(getRepoName(req), req.params.tag, registry.registryHost);
+            res.json(true);
+        };
 
+        router.post('/:repoId/tags/:tag', handleCreateRepoTags);
+        router.post('/:namespace/:repoId/tags/:tag', handleCreateRepoTags);
+    }
     return router;
 };

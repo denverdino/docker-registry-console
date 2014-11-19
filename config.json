@@ -1,6 +1,9 @@
 {
+    "docker":{
+        "socketPath": "/var/run/docker.sock"
+    },
 	"privateRegistry": {
-		"host": "172.20.60.201",
+		"host": "jadetest.cn.ibm.com",
 		"port": 5000,
 		"protocol": "http",
 		"apiVersion": "v1",
