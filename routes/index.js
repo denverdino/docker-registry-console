@@ -26,31 +26,54 @@ router.get('/private_registry', function(req, res) {
     view.render(req, res, 'home', { params: params});
 });
 
+
+var getLayerDisplayName = function(layer) {
+    var displayName = null;
+    var images = privateRegistry.cachedData.imageTagIndex[layer];
+    if (images) {
+        displayName = '';
+        for (var i = 0; i < images.length; i++) {
+            if (i > 0) {
+                displayName += ', '
+            }
+            displayName += images[i].displayName + ':' + images[i].tag;
+        }
+    }
+    return displayName;
+};
+
 /* GET image details from private registry. */
 router.get('/private_registry/images/:id', function(req, res) {
     privateRegistry.retrieveImageDetails(req.params.id).then(function(image) {
         privateRegistry.retrieveImageAncestry(req.params.id).then(function (layers) {
-            var layerInfoList = [];
-            layers.forEach(function(layer){
-                var displayName = null;
-                var images = privateRegistry.cachedData.imageTagIndex[layer];
-                if (images) {
-                    displayName = '';
-                    for (var i = 0; i < images.length; i++) {
-                        if (i > 0) {
-                            displayName += ', '
-                        }
-                        displayName += images[i].displayName + ':' + images[i].tag;
+            return Promise.all(
+                layers.map(function (layer) {
+                    return privateRegistry.retrieveImageDetails(layer).then(function (info) {
+                        var result = {
+                            id: info.id,
+                            size: info.Size
+                        };
+                        return result;
+                    });
+                })
+            ).then(function(layers) {
+                var totalSize = 0;
+                var layerInfoList = [];
+                for (var i = 0, len = layers.length; i<len; i++) {
+                    var id = layers[i].id;
+                    var size = layers[i].size;
+                    if (size) {
+                        totalSize += layers[i].size;
                     }
-
+                    layerInfoList.push({id: id, displayName: getLayerDisplayName(id)});
                 }
-                layerInfoList.push({id: layer, displayName: displayName})
-            });
-            var params = url.parse(req.url, true).query;
-            view.render(req, res, 'image', {
-                image: image,
-                layers: layerInfoList,
-                params: params
+                image.totalSize = totalSize;
+                var params = url.parse(req.url, true).query;
+                view.render(req, res, 'image', {
+                    image: image,
+                    layers: layerInfoList,
+                    params: params
+                });
             });
         })
     })

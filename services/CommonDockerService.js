@@ -90,7 +90,8 @@ CommonDockerService.prototype.sendRequest = function(options, log) {
         return new Promise(function (resolve, reject) {
             request(options, function (error, response, body) {
                 if (error) {
-                    console.log('Failed to send request: %s %s', request.method, options.url);
+                    var method = (request.method)? request.method: 'GET';
+                    console.log('Failed to send request: %s %s', method, options.url);
                     console.log(error);
                     reject(error);
                 } else if (response.statusCode != 200) {
