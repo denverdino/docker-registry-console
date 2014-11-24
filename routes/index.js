@@ -45,7 +45,7 @@ var getLayerDisplayName = function(layer) {
 /* GET image details from private registry. */
 router.get('/private_registry/images/:id', function(req, res) {
     privateRegistry.retrieveImageDetails(req.params.id).then(function(image) {
-        privateRegistry.retrieveImageAncestry(req.params.id).then(function (layers) {
+        var handler = function (layers) {
             return Promise.all(
                 layers.map(function (layer) {
                     return privateRegistry.retrieveImageDetails(layer).then(function (info) {
@@ -57,24 +57,27 @@ router.get('/private_registry/images/:id', function(req, res) {
                     });
                 })
             ).then(function(layers) {
-                var totalSize = 0;
-                var layerInfoList = [];
-                for (var i = 0, len = layers.length; i<len; i++) {
-                    var id = layers[i].id;
-                    var size = layers[i].size;
-                    if (!isNaN(size)) {
-                        totalSize += layers[i].size;
+                    var totalSize = 0;
+                    var layerInfoList = [];
+                    for (var i = 0, len = layers.length; i<len; i++) {
+                        var id = layers[i].id;
+                        var size = layers[i].size;
+                        if (!isNaN(size)) {
+                            totalSize += layers[i].size;
+                        }
+                        layerInfoList.push({id: id, displayName: getLayerDisplayName(id)});
                     }
-                    layerInfoList.push({id: id, displayName: getLayerDisplayName(id)});
-                }
-                image.totalSize = totalSize;
-                var params = url.parse(req.url, true).query;
-                view.render(req, res, 'image', {
-                    image: image,
-                    layers: layerInfoList,
-                    params: params
+                    image.totalSize = totalSize;
+                    var params = url.parse(req.url, true).query;
+                    view.render(req, res, 'image', {
+                        image: image,
+                        layers: layerInfoList,
+                        params: params
+                    });
                 });
-            });
+        };
+        privateRegistry.retrieveImageAncestry(req.params.id).then(handler, function (err){
+            handler([]);
         })
     })
 });
