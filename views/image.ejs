@@ -33,7 +33,7 @@
                     <tbody>
                     <tr><td class="col-md-3">OS</td><td><%= (image.os)? image.os: '' %></td></tr>
                     <tr><td class="col-md-3">Architecture</td><td><%= (image.architecture)? image.architecture: '' %></td></tr>
-                    <tr><td class="col-md-3">Size</td><td><%= (image.totalSize)? image.totalSize: '' %></td></tr>
+                    <tr><td class="col-md-3">Size</td><td><%= (image.totalSize)? (image.totalSize / 1024 / 1024).toFixed(2) + 'MB (' + image.totalSize + ')': '' %></td></tr>
                     </tbody>
                 </table>
             </div>

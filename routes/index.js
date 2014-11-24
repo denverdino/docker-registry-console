@@ -62,7 +62,7 @@ router.get('/private_registry/images/:id', function(req, res) {
                 for (var i = 0, len = layers.length; i<len; i++) {
                     var id = layers[i].id;
                     var size = layers[i].size;
-                    if (size) {
+                    if (!isNaN(size)) {
                         totalSize += layers[i].size;
                     }
                     layerInfoList.push({id: id, displayName: getLayerDisplayName(id)});
