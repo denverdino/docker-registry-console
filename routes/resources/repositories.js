@@ -50,7 +50,7 @@ module.exports = function(publicRegistry) {
 
     if (!publicRegistry) { //Private Registry Only.
         var handleRetrieveImageFromDockerHub = function(req, res) {
-            view.renderJSONPromise(res, dockerHub.retrieveImageFromDockerHub(getRepoName(req), req.params.imageId));
+            view.renderJSONPromise(res, registry.retrieveImageFromDockerHub(getRepoName(req), req.params.imageId));
         };
 
         router.get('/:repoId/images/:imageId', handleRetrieveImageFromDockerHub);

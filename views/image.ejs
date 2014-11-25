@@ -104,7 +104,7 @@
     </div>
     <%
     }
-    if (!isEmptyArray(layers)) {
+    if (!isEmptyArray(image.ancestry)) {
     %>
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -113,8 +113,8 @@
         <!-- Table -->
         <table class="table">
             <tbody>
-            <% for (var i = 0; i < layers.length; i++) {
-                var layer = layers[i];
+            <% for (var i = 0; i < image.ancestry.length; i++) {
+                var layer = image.ancestry[i];
                 var href = (i === 0)? '#': '/private_registry/images/' + layer.id;
                 var label = (layer.displayName) ? layer.id + ' (' + layer.displayName + ')' : layer.id;
             %>

@@ -3,6 +3,7 @@
 var util = require('util');
 var request = require('request');
 var CommonDockerService = require('./CommonDockerService');
+
 var config = require('../utils/config');
 
 
@@ -30,36 +31,10 @@ DockerImageRegistry.prototype.initialize = function(registryConfig) {
     }
 };
 
-DockerImageRegistry.prototype.buildIndex = function() {
-    var that = this;
-    this._searchRepoImagesWithTag().then(function(tags){
-        var result = {
-            imageTagIndex: {}
-        };
-        var imageTagIndex = result.imageTagIndex;
-
-        tags.forEach(function(imageTags) {
-            for (var i = 0, len = imageTags.length; i < len; ++i) {
-                var item = imageTags[i];
-                if (item.tag) {
-                    var value = imageTagIndex[item.id];
-                    if (value) {
-                        value.push(item);
-                    } else {
-                        imageTagIndex[item.id] = [item];
-                    }
-                }
-            }
-        });
-        console.log("Refresh layer index completed!");
+DockerImageRegistry.prototype.buildIndex = function () {
+    this.getIndex().buildIndex().then(function(result) {
         that.cachedData = result;
-        return result;
     });
-};
-
-
-DockerImageRegistry.prototype.listRepoTags = function(repoName) {
-   return this._listRepoTags(repoName);
 };
 
 DockerImageRegistry.prototype.retrieveImageFromDockerHub = function(repoName, imageId) {
@@ -76,96 +51,34 @@ DockerImageRegistry.prototype.retrieveImageFromDockerHub = function(repoName, im
     })
 };
 
-DockerImageRegistry.prototype.listRepoImagesWithTag = function(repoName) {
-    return this._listRepoImagesWithTag(repoName, this);
-};
-
-DockerImageRegistry.prototype.retrieveRepoTags = function(repo) {
-    var repoName = repo.name;
-    var that = this;
-    var options = this.buildRequestOptions('/repositories/' + repoName + '/tags');
-    return this.sendRequest(options).then(function (responseObject) {
-        var result = [];
-        for (var tag in responseObject) {
-            var image = {
-                'name': repoName,
-                'displayName': that.getDisplayName(repoName),
-                'tag': tag,
-                'id': responseObject[tag]
-            };
-            result.push(image)
+DockerImageRegistry.prototype.getLayerDisplayName = function(layer) {
+    var displayName = null;
+    var images = this.cachedData.imageTagIndex[layer];
+    if (images) {
+        displayName = '';
+        for (var i = 0; i < images.length; i++) {
+            if (i > 0) {
+                displayName += ', '
+            }
+            displayName += images[i].displayName + ':' + images[i].tag;
         }
-        return result;
-    });
+    }
+    return displayName;
 };
 
-DockerImageRegistry.prototype._searchRepoImagesWithTag = function(query) {
-    var that = this;
-    return that.searchRepositories(query).then(function(repositories) {
-        if (repositories.lenght == 0) {
-            return []
-        } else {
-            return Promise.all(
-                repositories.map(function (repo) {
-                    return that.retrieveRepoTags(repo)
-                })
-            );
-        }
-    });
-};
-
-DockerImageRegistry.prototype.retrieveImageAncestry = function(id) {
-    var options = this.buildRequestOptions('/images/' + id + '/ancestry');
-    return this.sendRequest(options);
-};
 
 DockerImageRegistry.prototype.searchRepoImagesWithTag = function(query) {
-    var that = this;
-    return that.searchRepositories(query).then(function(repositories) {
-        if (repositories.length == 0) {
-            return [];
-        } else {
-            return Promise.all(
-                repositories.map(function (repo) {
-                    return that.retrieveRepoTags(repo).then(function(tags) {
-                        return Promise.all(
-                            tags.map(function(tag){
-                                return that._retrieveRepoTagInfo(repo.name, tag.tag, null, tag);
-                            })
-                        );
-                    });
-                })
-            );
-        }
-    }).then(function (tags) {
-        var items = [];
-
-        tags.forEach(function (imageTags) {
-            for (var i = 0, len = imageTags.length; i < len; ++i) {
-                var item = imageTags[i];
-                items.push(item);
-            }
-        });
-        //Sort by name and tag
-        items.sort(function (a, b) {
-            var result = 0;
-            if (a.displayName > b.displayName) {
-                result = 1;
-            } else if (a.displayName < b.displayName) {
-                result = -1;
-            } else if (a.tag > b.tag) {
-                result = 1;
-            } else if (a.tag < b.tag) {
-                result = -1;
-            }
-            return result;
-        });
-        return items;
-    });
+    return this.getIndex().searchRepoImagesWithTag(query);
 };
 
-DockerImageRegistry.prototype.retrieveRepositoryDetails = function(repoName) {
-    return this._retrieveRepositoryDetails(repoName, null);
+DockerImageRegistry.prototype.retrieveImageDetails = function(id) {
+    var that = this;
+    return this.getImage(id).details().then(function(image) {
+        image.ancestry.forEach(function(layer) {
+            layer.displayName = that.getLayerDisplayName(layer.id);
+        });
+        return image;
+    });
 };
 
 DockerImageRegistry.privateRegistry = new DockerImageRegistry(config.privateRegistry);

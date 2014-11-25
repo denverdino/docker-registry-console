@@ -6,9 +6,9 @@ var Promise = require("es6-promise").Promise;
 var util = require('util');
 var CommonDockerService = require('./CommonDockerService');
 var DockerImageRegistry = require('./DockerImageRegistry');
+var RESTService = require('./RESTService');
 
 var DockerHub = function() {
-    this.registry = new DockerImageRegistry(config.publicRegistry);
     this.initialize(config.dockerHub);
 };
 
@@ -25,22 +25,11 @@ DockerHub.prototype.initialize = function(registryConfig) {
 };
 
 DockerHub.prototype.login = function() {
-    var options = this.buildRequestOptions('/users/');
-    return this.sendRequest(options);
+    return new RESTService(this.config).GET('/users/');
 };
 
-DockerHub.prototype.listRepoImagesWithTag = function(repoName) {
-    return this._listRepoImagesWithTag(repoName, this.registry);
-};
-
-
-DockerHub.prototype.listRepoTags = function(repoName) {
-    return this._listRepoTags(repoName, this.registry);
-};
-
-
-DockerHub.prototype.retrieveRepositoryDetails = function(repoName) {
-    return this._retrieveRepositoryDetails(repoName, this.registry);
+DockerHub.prototype.getRegistryService = function(repoName) {
+    return new RESTService(config.publicRegistry);
 };
 
 

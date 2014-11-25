@@ -2,7 +2,6 @@
 
 //polyfill for ES6
 require('./utils/polyfill.js');
-require('es6-promise').polyfill();
 
 var express = require('express');
 var path = require('path');

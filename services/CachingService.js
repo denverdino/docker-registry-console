@@ -9,7 +9,7 @@ var CachingService = function() {
     this.client = client;
 
     client.on('error', function (err) {
-        console.log('Error ' + err);
+        console.log('Redis Client Error ' + err);
     });
 };
 

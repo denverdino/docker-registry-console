@@ -1,5 +1,7 @@
 "use strict";
 
+require('es6-promise').polyfill();
+
 if (!String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {
         enumerable: false,
