@@ -5,11 +5,11 @@
     <% include header.ejs %>
 </head>
 <body role="document">
-<div class="container" ng-init="repoName='<%= repoName %>'; registry='public'">
+<div class="container" ng-init="repoName='<%= repoName %>'; registry='private'; selectedTag='<%= params.tag %>'">
     <% include navbar.ejs %>
     <div ng-controller="repositoryTagsController">
         <div class="page-header">
-            <h1><%= repoName %> <small>Docker Hub</small></h1>
+            <h1><%= repoName %> <small>Private registry</small></h1>
         </div>
         <div ng-show="!isReady">&nbsp;&nbsp;<image src="/images/loading.png"/> Loading ... <br/></div>
         <div ng-show="isReady">
@@ -24,25 +24,13 @@
                             <td class="col-md-2">Description</td>
                             <td class="col-md-10 td-description" colspan="3" ng-bind="details.description"></td>
                         </tr>
-                        <tr>
-                            <td class="col-md-2">Link to Docker Hub</td>
-                            <td class="col-md-4"><a href="{{ details.url }}" target="_blank" ng-bind="details.name"></a></td>
-                            <td class="col-md-2">Stars</td>
-                            <td class="col-md-4"><span class="glyphicon glyphicon-star icon-star"></span> <span ng-bind="details.star_count"></span></td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-2">Automatic build</td>
-                            <td class="col-md-4"><span class="glyphicon glyphicon-ok icon-success" ng-show="details.is_automated"></span></td>
-                            <td class="col-md-2">Official build</td>
-                            <td class="col-md-4"><span class="glyphicon glyphicon-ok icon-success" ng-show="details.is_official"></span></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <p><h3>Tags</h3></p>
             <tabset ng-show="isReady" type="pills">
-                <tab ng-repeat="image in details.tags" heading="{{image.tag}}" active="image.isLatest">
+                <tab ng-repeat="image in details.tags" heading="{{image.tag}}" active="image.isSelected">
                     <div>
                         <p></p>
                         <div class="row">
@@ -56,13 +44,21 @@
                                         <tbody>
                                             <tr>
                                                 <td class="col-md-2">Author</td>
-                                                <td class="col-md-10" colspan="3" ng-bind="image.author"></td>
+                                                <td class="col-md-4" ng-bind="image.author"></td>
+                                                <td class="col-md-2">Size</td>
+                                                <td class="col-md-4" ng-bind-template="{{ (image.totalSize)? (image.totalSize / 1024 / 1024).toFixed(2) + 'MB (' + image.totalSize + ')': '' }}"></td>
                                             </tr>
                                             <tr>
                                                 <td class="col-md-2">OS</td>
                                                 <td class="col-md-4" ng-bind="image.os"></td>
                                                 <td class="col-md-2">Architecture</td>
                                                 <td class="col-md-4" ng-bind="image.architecture"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="col-md-2">Image ID</td>
+                                                <td class="col-md-4" ng-bind="image.id"></td>
+                                                <td class="col-md-2">Docker Version</td>
+                                                <td class="col-md-4" ng-bind="image.docker_version"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -116,6 +112,30 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                    <div class="panel panel-default" ng-controller="imageInfoController">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Docker Hub information</h3>
+                        </div>
+                        <!-- Table -->
+                        <table class="table" ng-show="hasResult">
+                            <tbody>
+                            <tr>
+                                <td class="col-md-3">Repository name</td>
+                                <td><a href="{{ '/docker_hub/repositories/' + repository.name }}" target="_blank" ng-bind="repository.name"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star icon-star"></span><span ng-bind="repository.star_count"></span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-3">Tag</td>
+                                <td><span ng-bind="tag"></span>
+                                    <div ng-show="status === 'matched'"><span class="label label-success">Up-to-date</span></div>
+                                    <div ng-show="status === 'found'"><span class="label label-warning">Update available</span>  <button class="btn btn-default btn-sm" >Sync image from docker hub</button></div>
+                                    <div ng-show="status === 'not_found'"><span class="label label-danger">Not found</span></div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <span class="label label-danger" ng-show="status === 'invalid'" ng-bind-template="The repository '{{ repoName }}' is not found in Docker Hub. "></span>
+                        <div ng-show="!isReady"><p>&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading ... </p></div>
                     </div>
                 </tab>
             </tabset>

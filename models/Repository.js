@@ -97,7 +97,7 @@ Repository.prototype.details = function(repository, service) {
                 var tagList = that.tagsToList(tags);
                 return Promise.all(
                     tagList.map(function (tag) {
-                        return new Image(service, tag.id).info().then(function (info) {
+                        return new Image(service, tag.id).details().then(function (info) {
                             info.repository = that.id;
                             info.tag = tag.name;
                             return info;

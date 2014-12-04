@@ -1,15 +1,93 @@
-angular.module('myRepository', ['ui.bootstrap'])
+function handleSearchRequest($scope, dockerRegistryService, searchFunc) {
+    var pageSize = 15;
+
+    $scope.totalItems = 0;
+    $scope.maxSize = 10;
+    $scope.isReady = false;
+
+    $scope.search = function () {
+        $scope.isReady = false;
+        dockerRegistryService[searchFunc]($scope.searchTerm).then(function(items) {
+            $scope.isReady = true;
+            $scope.allItems = angular.copy(items);
+            $scope.pagination(items, pageSize);
+            $scope.pageChanged();
+        }, function() {
+            $scope.isReady = true;
+        });
+    };
+
+    $scope.setPage = function (pageNo) {
+        $scope.currentPage = pageNo;
+    };
+
+    $scope.pageChanged = function() {
+        $scope.items = $scope.itemsByPage[$scope.currentPage - 1];
+    };
+
+    $scope.pagination = function (items, pageSize) {
+        var arrays = [], size = pageSize;
+        $scope.totalItems = items.length;
+        $scope.currentPage = 1;
+
+        if (items.length == 0) {
+            arrays.push([]);
+        } else {
+            while (items.length > 0) {
+                arrays.push(items.splice(0, size));
+            }
+        }
+        $scope.itemsByPage = arrays;
+        $scope.numPages = arrays.length;
+    };
+
+    //Initialize
+    $scope.search();
+}
+
+angular.module('registry_console', ['ui.bootstrap'])
     .factory('dockerRegistryService', ['$http', function($http) {
         var dockerRegistryService = {
-            listRepoTags: function(repo) {
+            listRepoTags: function(registry, repo) {
                 return $http(
                     {
                         method: 'GET',
-                        url: '/resources/registries/public/repositories/' + repo + '/details'
+                        url: '/resources/registries/' + registry + '/repositories/' + repo + '/details'
                     }).then(function (response){
                         return response.data
                     }, function(response){
                         return null;
+                    });
+            },
+            retrieveRepoInfo: function(repo) {
+                return $http(
+                    {
+                        method: 'GET',
+                        url: '/resources/registries/public/repositories/' + repo + '/info'
+                    }).then(function (response){
+                        return response.data
+                    }, function(response){
+                        return null;
+                    });
+            },
+            searchImages: function(searchTerm) {
+                var queryString = (searchTerm && searchTerm.length > 0)? '?q=' + encodeURIComponent(searchTerm) : '';
+                return $http(
+                    {
+                        method: 'GET',
+                        url: '/resources/registries/private/images' + queryString
+                    }).then(function (response){
+                        return response.data
+                    });
+            },
+            searchRepositories: function(searchTerm) {
+                var queryString = (searchTerm && searchTerm.length > 0)? '?q=' + encodeURIComponent(searchTerm) : '';
+                return $http(
+                    {
+                        method: 'GET',
+                        url: '/resources/registries/public/repositories/' + queryString
+                    }).then(function (response){
+                        return response.data
                     });
             }
         };
@@ -20,14 +98,16 @@ angular.module('myRepository', ['ui.bootstrap'])
         $scope.isReady = false;
         $scope.hasResult = false;
         //Initialize
-        dockerRegistryService.listRepoTags($scope.repoName).then(function(details) {
+        dockerRegistryService.listRepoTags($scope.registry, $scope.repoName).then(function(details) {
+            console.log($scope);
             var tagsInfo = details.tags;
             var repoURL = (details.name.indexOf('/') >= 0)? 'u/' + details.name : '_/' + details.name;
             details.url = 'https://registry.hub.docker.com/' + repoURL + '/';
 
             for (var i = 0; i < tagsInfo.length; i ++) {
                 var image = tagsInfo[i];
-                image.isLatest = (image.tag == 'latest');
+                image.isSelected = (image.tag === $scope.selectedTag);
+                image.isLatest = (image.tag === 'latest');
                 if (image.config) {
                     if (image.config.ExposedPorts) {
                         var portsInfo = [];
@@ -68,9 +148,88 @@ angular.module('myRepository', ['ui.bootstrap'])
         });
 
     }])
+    .controller('repositoriesController', ['$scope', 'dockerRegistryService', function($scope, dockerRegistryService) {
+        handleSearchRequest($scope, dockerRegistryService, 'searchRepositories');
+    }])
     .controller('TabsDemoCtrl', function ($scope) {
         $scope.tabs = [
             { title:'Dynamic Title 1', content:'Dynamic content 1' },
             { title:'Dynamic Title 2', content:'Dynamic content 2' }
         ];
+    })
+    .controller('imagesController', ['$scope', '$modal', 'dockerRegistryService', function($scope, $modal, dockerRegistryService) {
+        handleSearchRequest($scope, dockerRegistryService, 'searchImages');
+        $scope.openDeletionDialog = function (image) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'deleteImageDialog.html',
+                controller: 'deleteImageDialogController',
+                ///size: 'sm',
+                resolve: {
+                    image: function () {
+                        return image;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (confirmed) {
+                alert("Not implemented!")
+            }, function () {
+                console.log('Modal dismissed at: ' + new Date());
+            });
+        };
+    }])
+    .controller('imageInfoController', ['$scope', 'dockerRegistryService', function ($scope, dockerRegistryService) {
+        $scope.repository = {};
+        $scope.isReady = false;
+        $scope.hasResult = false;
+        $scope.status = 'unknown';
+        console.log($scope);
+        //Initialize
+        dockerRegistryService.retrieveRepoInfo($scope.image.repository).then(function(result) {
+            $scope.repository = result;
+            var status = 'invalid';
+            var tags = [];
+            if (result != null) {
+                var repoURL = ($scope.repoName.indexOf('/') >= 0)? 'u/' + $scope.repository : '_/' + $scope.repository;
+                $scope.repository.url = 'https://registry.hub.docker.com/' + repoURL + '/';
+                status = 'not_found';
+                for (var i = 0, len = result.images.length; i < len; i ++) {
+                    var image = result.images[i];
+                    var flag = false;
+                    if (image.id == $scope.image.id) {
+                        status = 'found';
+                        flag = true;
+                    }
+                    if (image.tags) {
+                        for (var j = 0, n = image.tags.length; j < n; j++) {
+                            var tag = image.tags[j];
+                            if (tag == $scope.image.tag && flag) {
+                                status = 'matched';
+                            }
+                            tags.push(tag);
+                        }
+                    }
+                }
+                $scope.hasResult = true;
+            }
+            $scope.status = status;
+            $scope.isReady = true;
+            $scope.repository.tags = tags;
+        });
+
+    }])
+    .controller('deleteImageDialogController', function ($scope, $modalInstance, image) {
+
+        $scope.seletedImage = image;
+
+        $scope.ok = function () {
+            $modalInstance.close(true);
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     });
+
+

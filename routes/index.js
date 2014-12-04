@@ -20,22 +20,10 @@ router.get('/', function(req, res) {
 });
 
 
-/* GET home page. */
+/* GET home page of private registry */
 router.get('/private_registry', function(req, res) {
     var params = url.parse(req.url, true).query;
-    view.render(req, res, 'home', { params: params});
-});
-
-
-/* GET image details from private registry. */
-router.get('/private_registry/images/:id', function(req, res) {
-    privateRegistry.retrieveImageDetails(req.params.id).then(function(image) {
-        var params = url.parse(req.url, true).query;
-        view.render(req, res, 'image', {
-            image: image,
-            params: params
-        });
-    });
+    view.render(req, res, 'private_registry', { params: params});
 });
 
 
@@ -57,9 +45,24 @@ var handleRetrieveRepoInfo = function(req, res) {
     });
 };
 
-/* GET image details from private registry. */
+/* GET repo details from Docker Hub. */
 router.get('/docker_hub/repositories/:repoId', handleRetrieveRepoInfo);
 router.get('/docker_hub/repositories/:namespace/:repoId', handleRetrieveRepoInfo);
 
+
+
+var handleRetrieveRepoInfoFromPrivateRegistry = function(req, res) {
+    var params = url.parse(req.url, true).query;
+    var repoName = getRepoName(req);
+    view.render(req, res, 'docker_registry_repositories', {
+        repoName: repoName,
+        params: params
+    });
+};
+
+
+/* GET repo details from private registry. */
+router.get('/private_registry/repositories/:repoId', handleRetrieveRepoInfoFromPrivateRegistry);
+router.get('/private_registry/repositories/:namespace/:repoId', handleRetrieveRepoInfoFromPrivateRegistry);
 
 module.exports = router;

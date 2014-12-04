@@ -80,6 +80,7 @@ Index.prototype.searchRepoImagesWithTag = function(query) {
                     return new Image(that.service, image.id).info().then(function(info) {
                         //Object.assign(image, info);
                         image.created = info.created;
+                        image.docker_version = info.docker_version;
                         return image;
                     });
                 })

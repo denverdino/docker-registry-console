@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="homepage">
+<html ng-app="registry_console">
 <head>
     <title>Docker Image Registry</title>
     <% include header.ejs %>
@@ -8,7 +8,7 @@
 <div class="container" ng-controller="imagesController">
     <% include navbar.ejs %>
     <div class="page-header">
-        <h1>Docker images <small> private registry</small></h1>
+        <h1>Images <small> private registry</small></h1>
     </div>
     <div class="row">
         <form class="navbar-form navbar-left" name="searchForm">
@@ -42,13 +42,14 @@
             </tfoot>
             <tbody>
                 <tr ng-repeat="item in items">
-                    <td><a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}" ng-bind="item.displayName"></a></td>
+                    <!-- td><a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}" ng-bind="item.displayName"></a></td -->
+                    <td><a href="/private_registry/repositories/{{ item.displayName }}?&tag={{ item.tag }}" ng-bind="item.displayName"></a></td>
                     <td ng-bind="item.tag"></td>
                     <td ng-bind-template="{{ item.created | date:'short' }}"></td>
                     <td ng-bind="item.docker_version"></td>
                     <td>
-                        <a href="/private_registry/images/{{ item.id }}?repo={{ item.displayName }}&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
-                        <a href="#"><span class="glyphicon glyphicon-remove"></span></a>
+                        <a href="/private_registry/repositories/{{ item.displayName }}?&tag={{ item.tag }}"><span class="glyphicon glyphicon-wrench"></span></a>
+                        <a href="#" ng-click="openDeletionDialog(item.displayName + ':' + item.tag)"><span class="glyphicon glyphicon-remove"></span></a>
                     </td>
                 </tr>
             </tbody>
@@ -58,7 +59,19 @@
         </div>
     </div>
 </div> <!-- /container -->
+
+
+<script type="text/ng-template" id="deleteImageDialog.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Delete image</h3>
+        <span>Do you want to delete the image "{{seletedImage}}" ?</span>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
 <% include footer.ejs %>
-<script src = "/javascripts/controllers/homepageControllers.js"></script>
 </body>
 </html>
