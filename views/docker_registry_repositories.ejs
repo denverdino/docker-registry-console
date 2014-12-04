@@ -125,8 +125,8 @@
                                 <td><a href="{{ '/docker_hub/repositories/' + repository.name }}" target="_blank" ng-bind="repository.name"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star icon-star"></span><span ng-bind="repository.star_count"></span></td>
                             </tr>
                             <tr>
-                                <td class="col-md-3">Tag</td>
-                                <td><span ng-bind="tag"></span>
+                                <td class="col-md-3">Status</td>
+                                <td>
                                     <div ng-show="status === 'matched'"><span class="label label-success">Up-to-date</span></div>
                                     <div ng-show="status === 'found'"><span class="label label-warning">Update available</span>  <button class="btn btn-default btn-sm" >Sync image from docker hub</button></div>
                                     <div ng-show="status === 'not_found'"><span class="label label-danger">Not found</span></div>
