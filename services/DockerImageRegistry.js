@@ -22,7 +22,7 @@ DockerImageRegistry.prototype.initialize = function(registryConfig) {
     };
 
     var that = this;
-    if (registryConfig.layerIndex) {
+    if (false && registryConfig.layerIndex) {
         //Build in memory cache and refresh every minute.
         this.buildIndex();
         setInterval(function() { //Every 10 minutes

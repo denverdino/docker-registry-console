@@ -5,7 +5,7 @@
     <% include header.ejs %>
 </head>
 <body role="document">
-<div class="container" ng-init="repoName='<%= repoName %>'; registry='public'">
+<div class="container" ng-init="repoName='<%= repoName %>'; registry='public'; selectedTag='<%= params.tag %>'">
     <% include navbar.ejs %>
     <div ng-controller="repositoryTagsController">
         <div class="page-header">
@@ -42,7 +42,7 @@
 
             <p><h3>Tags</h3></p>
             <tabset ng-show="isReady" type="pills">
-                <tab ng-repeat="image in details.tags" heading="{{image.tag}}" active="image.isLatest">
+                <tab ng-repeat="image in details.tags" heading="{{image.tag}}" active="image.isSelected">
                     <div>
                         <p></p>
                         <div class="row">

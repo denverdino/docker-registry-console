@@ -122,7 +122,7 @@
                             <tbody>
                             <tr>
                                 <td class="col-md-3">Repository name</td>
-                                <td><a href="{{ '/docker_hub/repositories/' + repository.name }}" target="_blank" ng-bind="repository.name"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star icon-star"></span><span ng-bind="repository.star_count"></span></td>
+                                <td><a href="{{ '/docker_hub/repositories/' + repository.name }}?tag={{image.tag}}" target="_blank" ng-bind="repository.name"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-star icon-star"></span><span ng-bind="repository.star_count"></span></td>
                             </tr>
                             <tr>
                                 <td class="col-md-3">Status</td>

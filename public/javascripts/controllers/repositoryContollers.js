@@ -1,6 +1,6 @@
 function handleSearchRequest($scope, dockerRegistryService, searchFunc) {
     var pageSize = 15;
-
+    $scope.pageSize = pageSize;
     $scope.totalItems = 0;
     $scope.maxSize = 10;
     $scope.isReady = false;
@@ -94,6 +94,11 @@ angular.module('registry_console', ['ui.bootstrap'])
         return dockerRegistryService;
     }])
     .controller('repositoryTagsController', ['$scope', 'dockerRegistryService', function ($scope, dockerRegistryService) {
+        var selectedTag = $scope.selectedTag;
+        if (!selectedTag || "" === selectedTag || "undefined" === selectedTag) {
+            selectedTag = 'latest';
+        }
+        console.log("selectedTag=" + selectedTag);
         $scope.tagsInfo = [];
         $scope.isReady = false;
         $scope.hasResult = false;
@@ -106,8 +111,7 @@ angular.module('registry_console', ['ui.bootstrap'])
 
             for (var i = 0; i < tagsInfo.length; i ++) {
                 var image = tagsInfo[i];
-                image.isSelected = (image.tag === $scope.selectedTag);
-                image.isLatest = (image.tag === 'latest');
+                image.isSelected = (image.tag === selectedTag);
                 if (image.config) {
                     if (image.config.ExposedPorts) {
                         var portsInfo = [];

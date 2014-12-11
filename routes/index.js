@@ -39,9 +39,11 @@ var getRepoName = function(req) {
 };
 
 var handleRetrieveRepoInfo = function(req, res) {
+    var params = url.parse(req.url, true).query;
     var repoName = getRepoName(req);
     view.render(req, res, 'docker_hub_repositories', {
-        repoName: repoName
+        repoName: repoName,
+        params: params
     });
 };
 
