@@ -31,9 +31,10 @@ DockerService.prototype.pull = function(repo, tag) {
 
 DockerService.prototype.tag = function(repo, tag, registryHost) {
     var imageTag = repo + ":" + tag;
-    console.log('tag image: ' + imageTag);
+    console.log('Tag image: ' + imageTag);
     var params = {
-        repo: registryHost + '/' + repo
+        repo: registryHost + '/' + repo,
+        force: 1
     };
     if (tag) {
         params.tag = tag;
