@@ -48,15 +48,6 @@ module.exports = function(publicRegistry) {
     router.get('/:repoId/images', handleListRepoImages);
     router.get('/:namespace/:repoId/images', handleListRepoImages);
 
-    if (!publicRegistry) { //Private Registry Only.
-        var handleRetrieveImageFromDockerHub = function(req, res) {
-            view.renderJSONPromise(res, registry.retrieveImageFromDockerHub(getRepoName(req), req.params.imageId));
-        };
-
-        router.get('/:repoId/images/:imageId', handleRetrieveImageFromDockerHub);
-        router.get('/:namespace/:repoId/images/:imageId', handleRetrieveImageFromDockerHub);
-
-    }
 
     var handleRetrieveRepoTagsInfo = function(req, res) {
         view.renderJSONPromise(res, registry.retrieveRepositoryDetails(getRepoName(req)));
@@ -65,7 +56,14 @@ module.exports = function(publicRegistry) {
     router.get('/:repoId/details', handleRetrieveRepoTagsInfo);
     router.get('/:namespace/:repoId/details', handleRetrieveRepoTagsInfo);
 
-    if (!publicRegistry) {
+    if (!publicRegistry) { //Private Registry Only.
+        var handleRetrieveImageFromDockerHub = function(req, res) {
+            view.renderJSONPromise(res, registry.retrieveImageFromDockerHub(getRepoName(req), req.params.imageId));
+        };
+
+        router.get('/:repoId/images/:imageId', handleRetrieveImageFromDockerHub);
+        router.get('/:namespace/:repoId/images/:imageId', handleRetrieveImageFromDockerHub);
+
         var handleCreateRepoTags = function(req, res) {
             dockerService.syncImage(getRepoName(req), req.params.tag, registry.registryHost);
             res.json(true);
@@ -73,6 +71,13 @@ module.exports = function(publicRegistry) {
 
         router.post('/:repoId/tags/:tag', handleCreateRepoTags);
         router.post('/:namespace/:repoId/tags/:tag', handleCreateRepoTags);
+
+        var handleDeleteRepoTags = function(req, res) {
+            view.renderJSONPromise(res, registry.deleteRepoTag(getRepoName(req), req.params.tag));
+        };
+
+        router.delete('/:repoId/tags/:tag', handleDeleteRepoTags);
+        router.delete('/:namespace/:repoId/tags/:tag', handleDeleteRepoTags);
     }
     return router;
 };

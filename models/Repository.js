@@ -114,4 +114,8 @@ Repository.prototype.details = function(repository, service) {
     }
 };
 
+Repository.prototype.deleteTag = function(tag) {
+    return this.service.DELETE('/repositories/' + this.id + '/tags/' + tag);
+};
+
 module.exports = Repository;

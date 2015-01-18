@@ -45,25 +45,49 @@ Install the fig [http://www.fig.sh/](http://www.fig.sh/)
 
 **Config** 
 
+
 Update the fig.yml according to your environment setting. 
-	
-	web:
-	  build: .
-	  links:
-	   - redis
-	  ports:
-	   - "3000:3000"
-	  environment:
-	    PRIVATE_REGISTRY_URL: http://192.168.199.191:5000
-	    DOCKER_HUB_USER: USER_NAME
-	    DOCKER_HUB_PASSWORD: PASSWORD
-	redis:
-	  image: redis:latest
+
+```
+web:
+  build: .
+  links:
+   - redis
+   - registry
+  ports:
+   - "3000:3000"
+  environment:
+    DOCKER_HUB_USER: USER_NAME
+    DOCKER_HUB_PASSWORD: PASSWORD
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+redis:
+  image: redis:latest
+registry:
+  image: registry:latest
+  ports:
+    - "5000:5000"
+  volumes:
+    - "/var/docker-registry-storage:/var/docker-registry-storage"
+  environment:
+    SETTINGS_FLAVOR: local
+    SEARCH_BACKEND: sqlalchemy
+    SQLALCHEMY_INDEX_DATABASE: sqlite:////var/docker-registry-storage/docker-registry.db
+    STORAGE_PATH: /var/docker-registry-storage
+
+```
+
+Add "127.0.0.1 registry" to /etc/hosts
 
 
 **Run** 	
 
 	fig up
+
+To-do
+-----
+1. UI enhancement
+2. Provide the progress notification for syncing image
 
 
 

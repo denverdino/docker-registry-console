@@ -8,6 +8,7 @@ var express = require('express');
 var DockerImageRegistry = require('../services/DockerImageRegistry');
 var router = express.Router();
 var view = require('../utils/view');
+var config = require('../utils/config');
 
 
 
@@ -23,14 +24,14 @@ router.get('/', function(req, res) {
 /* GET home page of private registry */
 router.get('/private_registry', function(req, res) {
     var params = url.parse(req.url, true).query;
-    view.render(req, res, 'private_registry', { params: params});
+    view.render(req, res, 'private_registry', {params: params, config: config});
 });
 
 
 /* GET docker hub page. */
 router.get('/docker_hub', function(req, res) {
     var params = url.parse(req.url, true).query;
-    view.render(req, res, 'docker_hub', { params: params});
+    view.render(req, res, 'docker_hub', {params: params, config: config});
 });
 
 
@@ -43,7 +44,8 @@ var handleRetrieveRepoInfo = function(req, res) {
     var repoName = getRepoName(req);
     view.render(req, res, 'docker_hub_repositories', {
         repoName: repoName,
-        params: params
+        params: params,
+        config: config
     });
 };
 
@@ -58,7 +60,8 @@ var handleRetrieveRepoInfoFromPrivateRegistry = function(req, res) {
     var repoName = getRepoName(req);
     view.render(req, res, 'docker_registry_repositories', {
         repoName: repoName,
-        params: params
+        params: params,
+        config: config
     });
 };
 

@@ -6,18 +6,10 @@ var cachingService = require('./CachingService');
 
 var RESTService = function(config) {
     this.config = config;
-    var defaultPort = false;
-    if (config.port == 443 && config.protocol == 'https' || config.port == 80 && config.protocol == 'http') {
-        defaultPort = true;
-    }
 
-    if (defaultPort) { // No idea why Docker Hub API doesn't like port in the request URL
-        this.baseURL = config.protocol + '://' + config.host + '/' + config.apiVersion;
-        this.registryHost = config.host;
-    } else {
-        this.baseURL = config.protocol + '://' + config.host + ':' + config.port + '/' + config.apiVersion;
-        this.registryHost = config.host + ':' + config.port;
-    }
+    this.baseURL = config.baseURL;
+    this.registryHost =  config.registryHost;
+
 
     if (config.user) {
         this.authorizationHeader = 'Basic ' + new Buffer(config.user + ':' + config.password).toString('base64');
@@ -95,6 +87,9 @@ RESTService.prototype.sendRequest = function(method, path, query) {
                         'x-docker-token': token
                     };
                     cachingService.setJSON(options.url, cacheValue, that.config.ttl);
+                } else if (method === 'DELETE') {
+                    console.log('Delete URL: %s', options.url);
+                    cachingService.delete(options.url);
                 }
                 resolve(json);
             }

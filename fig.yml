@@ -2,12 +2,24 @@ web:
   build: .
   links:
    - redis
+   - registry
   ports:
    - "3000:3000"
   environment:
-    PRIVATE_REGISTRY_URL: http://192.168.199.191:5000
     DOCKER_HUB_USER: USER_NAME
     DOCKER_HUB_PASSWORD: PASSWORD
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
 redis:
   image: redis:latest
-
+registry:
+  image: registry:latest
+  ports:
+    - "5000:5000"
+  volumes:
+    - "/var/docker-registry-storage:/var/docker-registry-storage"
+  environment:
+    SETTINGS_FLAVOR: local
+    SEARCH_BACKEND: sqlalchemy
+    SQLALCHEMY_INDEX_DATABASE: sqlite:////var/docker-registry-storage/docker-registry.db
+    STORAGE_PATH: /var/docker-registry-storage

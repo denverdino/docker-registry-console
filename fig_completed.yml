@@ -1,20 +1,19 @@
---- 
-nginx: 
+nginx:
   image: "nginx:latest"
-  links: 
+  links:
     - web
     - registry
-  ports: 
+  ports:
     - "9080:80"
     - "9443:443"
-  volumes: 
+  volumes:
     - "./nginx/nginx.conf:/etc/nginx/conf.d/docker-registry.conf:ro"
     - "./nginx/docker-registry.key:/etc/nginx/docker-registry.key:ro"
     - "./nginx/docker-registry.cert:/etc/nginx/docker-registry.cert:ro"
     - "./nginx/docker-registry.conf:/etc/nginx/docker-registry.conf:ro"
     - "./nginx/docker-registry.htpasswd:/etc/nginx/docker-registry.htpasswd:ro"
 registry:
-  environment: 
+  environment:
     CACHE_REDIS_HOST: redis
     CACHE_REDIS_PORT: 6379
     SEARCH_BACKEND: sqlalchemy
@@ -22,20 +21,21 @@ registry:
     SQLALCHEMY_INDEX_DATABASE: "sqlite:////var/docker-registry-storage/docker-registry.db"
     STORAGE_PATH: /var/docker-registry-storage
   image: "registry:latest"
-  links: 
+  links:
     - redis
-  ports: 
+  ports:
     - "5000:5000"
-  volumes: 
+  volumes:
     - "/var/docker-registry-storage:/var/docker-registry-storage"
-web: 
+web:
   build: "."
-  environment: 
-    DOCKER_HUB_USER: USERNAME
+  environment:
+    DOCKER_HUB_USER: USER_NAME
     DOCKER_HUB_PASSWORD: PASSWORD
   links:
     - redis
     - registry
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
 redis:
   image: "redis:latest"
-

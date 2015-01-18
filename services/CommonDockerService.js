@@ -25,6 +25,7 @@ CommonDockerService.prototype.getImage = function(id) {
 
 CommonDockerService.prototype.initializeConfig = function(config) {
     this.config = config;
+    this.registryHost = config.registryHost;
 };
 
 CommonDockerService.prototype.listRepositories = function() {
@@ -76,6 +77,10 @@ CommonDockerService.prototype.retrieveRepositoryDetails = function(repoName) {
     return this.retrieveRepository(repoName).then(function(repository) {
         return that.getRepository(repoName).details(repository, that.getRegistryService());
     })
+};
+
+CommonDockerService.prototype.deleteRepoTag = function(repoName, tag) {
+    return this.getRepository(repoName).deleteTag(tag);
 };
 
 module.exports = CommonDockerService;
