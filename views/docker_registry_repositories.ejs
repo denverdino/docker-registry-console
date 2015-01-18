@@ -128,7 +128,9 @@
                                 <td class="col-md-3">Status</td>
                                 <td>
                                     <div ng-show="status === 'matched'"><span class="label label-success">Up-to-date</span></div>
-                                    <div ng-show="status === 'found'"><span class="label label-warning">Update available</span>  <button class="btn btn-default btn-sm" >Sync image from docker hub</button></div>
+                                    <div ng-show="status === 'found'"><span class="label label-warning">Update available</span>
+                                        <button type="submit" class="btn btn-default" ng-click="openPullingDialog(repository.name, image.tag)"><span class="glyphicon glyphicon-cloud-download"></span> Pull image </button>
+                                    </div>
                                     <div ng-show="status === 'not_found'"><span class="label label-danger">Not found</span></div>
                                 </td>
                             </tr>

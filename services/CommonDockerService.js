@@ -78,4 +78,8 @@ CommonDockerService.prototype.retrieveRepositoryDetails = function(repoName) {
     })
 };
 
+CommonDockerService.prototype.deleteRepoTag = function(repoName, tag) {
+    return this.getRepository(repoName).deleteTag(tag);
+};
+
 module.exports = CommonDockerService;

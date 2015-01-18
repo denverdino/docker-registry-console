@@ -45,6 +45,23 @@ function handleSearchRequest($scope, dockerRegistryService, searchFunc) {
     $scope.search();
 }
 
+function handlePullImage($scope, $modal, dockerRegistryService) {
+    $scope.openPullingDialog = function (image, tag) {
+        dockerRegistryService.pullImage(image, tag);
+        var modalInstance = $modal.open({
+            templateUrl: 'pullImageDialog.html',
+            controller: 'pullImageDialogController',
+            ///size: 'sm',
+            resolve: {
+                image: function () {
+                    return image + ":" + tag;
+                }
+            }
+        });
+    };
+}
+
+
 angular.module('registry_console', ['ui.bootstrap'])
     .factory('dockerRegistryService', ['$http', function($http) {
         var dockerRegistryService = {
@@ -89,11 +106,29 @@ angular.module('registry_console', ['ui.bootstrap'])
                     }).then(function (response){
                         return response.data
                     });
+            },
+            pullImage: function(image, tag) {
+                return $http(
+                    {
+                        method: 'POST',
+                        url: '/resources/registries/private/repositories/' + image + '/tags/' + tag
+                    }).then(function (response){
+                        return response.data
+                    });
+            },
+            deleteRepoTag: function(image, tag) {
+                return $http(
+                    {
+                        method: 'DELETE',
+                        url: '/resources/registries/private/repositories/' + image + '/tags/' + tag
+                    }).then(function (response){
+                        return response.data
+                    });
             }
         };
         return dockerRegistryService;
     }])
-    .controller('repositoryTagsController', ['$scope', 'dockerRegistryService', function ($scope, dockerRegistryService) {
+    .controller('repositoryTagsController', ['$scope', '$modal', 'dockerRegistryService', function ($scope, $modal, dockerRegistryService) {
         var selectedTag = $scope.selectedTag;
         if (!selectedTag || "" === selectedTag || "undefined" === selectedTag) {
             selectedTag = 'latest';
@@ -104,7 +139,6 @@ angular.module('registry_console', ['ui.bootstrap'])
         $scope.hasResult = false;
         //Initialize
         dockerRegistryService.listRepoTags($scope.registry, $scope.repoName).then(function(details) {
-            console.log($scope);
             var tagsInfo = details.tags;
             var repoURL = (details.name.indexOf('/') >= 0)? 'u/' + details.name : '_/' + details.name;
             details.url = 'https://registry.hub.docker.com/' + repoURL + '/';
@@ -150,7 +184,7 @@ angular.module('registry_console', ['ui.bootstrap'])
             $scope.details = details;
             $scope.isReady = true;
         });
-
+        handlePullImage($scope, $modal, dockerRegistryService);
     }])
     .controller('repositoriesController', ['$scope', 'dockerRegistryService', function($scope, dockerRegistryService) {
         handleSearchRequest($scope, dockerRegistryService, 'searchRepositories');
@@ -163,7 +197,7 @@ angular.module('registry_console', ['ui.bootstrap'])
     })
     .controller('imagesController', ['$scope', '$modal', 'dockerRegistryService', function($scope, $modal, dockerRegistryService) {
         handleSearchRequest($scope, dockerRegistryService, 'searchImages');
-        $scope.openDeletionDialog = function (image) {
+        $scope.openDeletionDialog = function (imageName, tag, displayName) {
 
             var modalInstance = $modal.open({
                 templateUrl: 'deleteImageDialog.html',
@@ -171,24 +205,24 @@ angular.module('registry_console', ['ui.bootstrap'])
                 ///size: 'sm',
                 resolve: {
                     image: function () {
-                        return image;
+                        return displayName + ":" + tag;
                     }
                 }
             });
 
             modalInstance.result.then(function (confirmed) {
-                alert("Not implemented!")
+                dockerRegistryService.deleteRepoTag(imageName, tag);
+                console.log('Modal confirmed at: ' + new Date());
             }, function () {
                 console.log('Modal dismissed at: ' + new Date());
             });
         };
     }])
-    .controller('imageInfoController', ['$scope', 'dockerRegistryService', function ($scope, dockerRegistryService) {
+    .controller('imageInfoController', ['$scope', '$modal', 'dockerRegistryService', function ($scope, $modal, dockerRegistryService) {
         $scope.repository = {};
         $scope.isReady = false;
         $scope.hasResult = false;
         $scope.status = 'unknown';
-        console.log($scope);
         //Initialize
         dockerRegistryService.retrieveRepoInfo($scope.image.repository).then(function(result) {
             $scope.repository = result;
@@ -221,7 +255,7 @@ angular.module('registry_console', ['ui.bootstrap'])
             $scope.isReady = true;
             $scope.repository.tags = tags;
         });
-
+        handlePullImage($scope, $modal, dockerRegistryService);
     }])
     .controller('deleteImageDialogController', function ($scope, $modalInstance, image) {
 
@@ -233,6 +267,47 @@ angular.module('registry_console', ['ui.bootstrap'])
 
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
+        };
+    })
+    .controller('pullImageDialogController', function ($scope, $modalInstance, image) {
+
+        $scope.seletedImage = image;
+
+        $scope.ok = function () {
+            $modalInstance.dismiss('ok');
+        };
+    })
+    .controller('menuController', ['$scope', '$modal', 'dockerRegistryService', function ($scope, $modal, dockerRegistryService) {
+        $scope.openSettingsDialog = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'settingsDialog.html',
+                controller: 'settingsDialogController',
+                ///size: 'sm',
+                resolve: {
+
+                }
+            });
+        };
+
+        $scope.openAboutDialog = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'aboutDialog.html',
+                controller: 'aboutDialogController',
+                ///size: 'sm',
+                resolve: {
+
+                }
+            });
+        }
+    }])
+    .controller('settingsDialogController', function ($scope, $modalInstance) {
+        $scope.ok = function () {
+            $modalInstance.dismiss('ok');
+        };
+    })
+    .controller('aboutDialogController', function ($scope, $modalInstance) {
+        $scope.ok = function () {
+            $modalInstance.dismiss('ok');
         };
     });
 

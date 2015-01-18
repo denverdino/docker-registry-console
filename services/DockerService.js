@@ -9,7 +9,7 @@ var DockerService = function() {
 
 DockerService.prototype.pull = function(repo, tag) {
     var imageTag = repo + ":" + tag;
-    console.log('pull image: ' + imageTag);
+    console.log('Pulling image: %s', imageTag);
     var that = this;
     return new Promise(function (resolve, reject) {
         that.client.pull(imageTag, function (error, stream) {

@@ -3,6 +3,21 @@
 var fs = require('fs');
 var url = require('url');
 
+var processConfig = function(config) {
+    var defaultPort = false;
+    if (config.port == 443 && config.protocol == 'https' || config.port == 80 && config.protocol == 'http') {
+        defaultPort = true;
+    }
+
+    if (defaultPort) { // No idea why Docker Hub API doesn't like port in the request URL
+        config.baseURL = config.protocol + '://' + config.host + '/' + config.apiVersion;
+        config.registryHost = config.host;
+    } else {
+        config.baseURL = config.protocol + '://' + config.host + ':' + config.port + '/' + config.apiVersion;
+        config.registryHost = config.host + ':' + config.port;
+    }
+};
+
 module.exports = function(env) {
     var data = fs.readFileSync('./config.json');
     var config = null;
@@ -16,7 +31,8 @@ module.exports = function(env) {
             privateRegistry.host = 'registry';
             privateRegistry.port = parseInt(env.REGISTRY_PORT_5000_TCP_PORT);
             if (!privateRegistry.port) {
-                console.log('Invalid environment variable "REGISTRY_PORT_5000_TCP_PORT".');
+                console.log('Invalid environment variable "REGISTRY_PORT_5000_TCP_PORT", use default value 5000.');
+                privateRegistry.port = 5000;
             }
         } else {
             var privateRegistryURL = env.PRIVATE_REGISTRY_URL;
@@ -40,6 +56,7 @@ module.exports = function(env) {
                 }
             }
         }
+        processConfig(config.privateRegistry);
 
         var dockerHubUser = env.DOCKER_HUB_USER;
         if (dockerHubUser) {
@@ -50,6 +67,9 @@ module.exports = function(env) {
         if (dockerHubPassword) {
             config.dockerHub.password = dockerHubPassword;
         }
+
+        processConfig(config.dockerHub);
+        processConfig(config.publicRegistry);
 
         var redisHost = env.REDIS_HOST;
         var redisPort = env.REDIS_PORT;

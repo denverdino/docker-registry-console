@@ -1,15 +1,15 @@
 {
-    "docker":{
+    "docker": {
         "socketPath": "/var/run/docker.sock"
     },
-	"privateRegistry": {
-		"host": "jadetest.cn.ibm.com",
-		"port": 5000,
-		"protocol": "http",
-		"apiVersion": "v1",
-		"layerIndex": true,
+    "privateRegistry": {
+        "host": "jadetest.cn.ibm.com",
+        "port": 5000,
+        "protocol": "http",
+        "apiVersion": "v1",
+        "layerIndex": true,
         "ttl": 60
-	},
+    },
     "publicRegistry": {
         "host": "registry-1.docker.io",
         "port": 443,
@@ -17,15 +17,15 @@
         "apiVersion": "v1",
         "ttl": 1800
     },
-	"dockerHub": {
-		"host": "registry.hub.docker.com",
-		"port": 443,
-		"protocol": "https",
-		"apiVersion": "v1",
-		"user": "USER_NAME",
-		"password": "PASSWORD",
+    "dockerHub": {
+        "host": "registry.hub.docker.com",
+        "port": 443,
+        "protocol": "https",
+        "apiVersion": "v1",
+        "user": "USER_NAME",
+        "password": "PASSWORD",
         "ttl": 1800
-	},
+    },
     "menu": [
         {
             "label": "Private",
@@ -44,9 +44,8 @@
             "href": "#"
         }
     ],
-    "redis" : {
+    "redis": {
         "port": 6379,
         "host": "127.0.0.1"
     }
 }
-

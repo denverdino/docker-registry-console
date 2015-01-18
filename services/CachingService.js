@@ -13,6 +13,10 @@ var CachingService = function() {
     });
 };
 
+CachingService.prototype.delete = function(key) {
+    this.client.del(key);
+};
+
 CachingService.prototype.setJSON = function(key, value, ttl) {
     this.client.set(key, JSON.stringify(value), redis.print);
     this.client.expire(key, ttl);
