@@ -9,3 +9,7 @@
 .td-description {
     white-space: pre-wrap;
 }
+
+.modal-vertical-centered { /* Edited classname 10/03/2014 */
+    padding-top: 5%;
+}

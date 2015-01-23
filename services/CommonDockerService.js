@@ -72,10 +72,10 @@ CommonDockerService.prototype.retrieveRepoWithImages = function(repoName) {
     });
 };
 
-CommonDockerService.prototype.retrieveRepositoryDetails = function(repoName) {
+CommonDockerService.prototype.retrieveRepositoryDetails = function(repoName, withSize) {
     var that = this;
     return this.retrieveRepository(repoName).then(function(repository) {
-        return that.getRepository(repoName).details(repository, that.getRegistryService());
+        return that.getRepository(repoName).details(repository, that.getRegistryService(), withSize);
     })
 };
 
