@@ -26,26 +26,6 @@
         "password": "PASSWORD",
         "ttl": 1800
     },
-    "menu": [
-        {
-            "label": "My Registry",
-            "href": "/private_registry"
-        },
-        {
-            "label": "Docker Hub",
-            "href": "/docker_hub"
-        },
-        {
-            "label": "Settings",
-            "href": "#",
-            "ng-click": "openSettingsDialog()"
-        },
-        {
-            "label": "About",
-            "href": "#",
-            "ng-click": "openAboutDialog()"
-        }
-    ],
     "redis": {
         "port": 6379,
         "host": "127.0.0.1"

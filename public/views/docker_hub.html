@@ -1,0 +1,70 @@
+<!-- BEGIN PAGE HEADER-->
+
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <i class="fa fa-home"></i>
+            <a href="index.html">Home</a>
+            <i class="fa fa-angle-right"></i>
+        </li>
+        <li>
+            <a href="#">Docker Hub</a>
+        </li>
+    </ul>
+</div>
+
+<h3 class="page-title">
+    Repositories
+</h3>
+
+<div ng-controller="repositoriesController">
+    <div class="row">
+        <form class="navbar-form navbar-left" name="searchForm">
+            <div class="form-group">
+                <input type="text" class="form-control" ng-model="searchTerm" autofocus="true" placeholder="Search the registry" />
+            </div>
+            &nbsp;
+            <button type="submit" class="btn btn-default" ng-click="search()"><span class="glyphicon glyphicon-search"></span> Search</button>
+            <span ng-show="!isReady">&nbsp;&nbsp;&nbsp;<image src="/images/loading.gif"/> Loading ...</span>
+        </form>
+    </div>
+    <div class="panel panel-default table-scrollable table-scrollable-borderless" >
+        <table class="table table-hover">
+            <thead>
+                <tr class="uppercase">
+                    <th class="col-md-2">Name</th>
+                    <th class="col-md-6">Description</th>
+                    <th class="col-md-1">Automatic build</th>
+                    <th class="col-md-1">Official</th>
+                    <th class="col-md-1">Stars</th>
+                    <th class="col-md-1">Actions</th>
+                </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <td ng-bind-template="Total number: {{totalItems}}"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tfoot>
+            <tbody>
+                <tr ng-repeat="repository in items">
+                    <td><a href="#/docker_hub/public/repositories/{{ (repository.name.indexOf('/') > 0)? repository.name: 'library/' + repository.name }}/tags/latest" ng-bind="repository.name"></a></td>
+                    <td class="td-description" ng-bind="repository.description"></td>
+                    <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_automated"></span></td>
+                    <td class="text-center"><span class="glyphicon glyphicon-ok icon-success" ng-show="repository.is_official"></span></td>
+                    <td ng-bind="repository.star_count"></td>
+                    <td>
+                        <a href="#/docker_hub/public/repositories/{{ repository.name }}/tags/latest"><span class="glyphicon glyphicon-wrench"></span></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pagination pull-right">
+            <pagination total-items="totalItems" items-per-page="pageSize" ng-model="currentPage" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()"></pagination>
+        </div>
+    </div>
+</div>

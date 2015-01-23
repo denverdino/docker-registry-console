@@ -88,7 +88,7 @@ Repository.prototype.imageList = function(repo) {
     });
 };
 
-Repository.prototype.details = function(repository, service) {
+Repository.prototype.details = function(repository, service, withSize) {
     var that = this;
     if (repository) {
         return that.images().then(function (result) {
@@ -97,7 +97,7 @@ Repository.prototype.details = function(repository, service) {
                 var tagList = that.tagsToList(tags);
                 return Promise.all(
                     tagList.map(function (tag) {
-                        return new Image(service, tag.id).details().then(function (info) {
+                        return new Image(service, tag.id).details(withSize).then(function (info) {
                             info.repository = that.id;
                             info.tag = tag.name;
                             return info;

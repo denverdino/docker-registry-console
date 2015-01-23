@@ -50,7 +50,8 @@ module.exports = function(publicRegistry) {
 
 
     var handleRetrieveRepoTagsInfo = function(req, res) {
-        view.renderJSONPromise(res, registry.retrieveRepositoryDetails(getRepoName(req)));
+        var withSize = !publicRegistry;
+        view.renderJSONPromise(res, registry.retrieveRepositoryDetails(getRepoName(req), withSize));
     };
 
     router.get('/:repoId/details', handleRetrieveRepoTagsInfo);

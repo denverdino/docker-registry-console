@@ -73,7 +73,7 @@ RESTService.prototype.sendRequest = function(method, path, query) {
                 reject(err);
             } else {
                 if (log) {
-                    that.logRequest(this, response, true, true);
+                    that.logRequest(this, response, true, false);
                 }
                 var json = JSON.parse(body);
 

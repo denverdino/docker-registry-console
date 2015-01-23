@@ -1,0 +1,118 @@
+<div class="page-sidebar navbar-collapse collapse" ng-controller="menuController">
+	<!-- BEGIN SIDEBAR MENU -->
+	<!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+	<!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+	<!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+	<!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+	<!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+	<!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+	<ul class="page-sidebar-menu page-sidebar-menu-hover-submenu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" ng-class="{'page-sidebar-menu-closed': settings.layout.pageSidebarClosed}">
+		<li class="start">
+			<a href="#/my_registry.html">
+			<i class="icon-home"></i>
+			<span class="title">My Registry</span>
+			</a>
+		</li>
+        <li>
+            <a href="#/docker_hub.html">
+                <i class="icon-paper-plane"></i>
+                <span class="title">Docker Hub</span>
+            </a>
+        </li>
+		<li>
+			<a href="#" ng-click="openSettingsDialog()">
+			<i class="icon-settings"></i>
+			<span class="title">Settings</span>
+			</a>
+		</li>
+        <li>
+            <a href="#" ng-click="openAboutDialog()">
+                <i class="icon-info"></i>
+                <span class="title">About</span>
+            </a>
+        </li>
+	</ul>
+	<!-- END SIDEBAR MENU -->
+    <script type="text/ng-template" id="settingsDialog.html">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Settings</h3>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">My Registry</h3>
+                    </div>
+                    <!-- Table -->
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td class="col-md-3">URL</td><td ><%= config.privateRegistry.baseURL%></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Docker Hub</h3>
+                    </div>
+                    <!-- Table -->
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td class="col-md-3">URL</td><td ><%= config.dockerHub.baseURL%></td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-3">Registry</td><td ><%= config.publicRegistry.baseURL%></td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-3">User</td><td ><%= config.dockerHub.user%></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Docker Client</h3>
+                    </div>
+                    <!-- Table -->
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td class="col-md-3">Socket Path</td>
+                            <td ><%= config.docker.socketPath %></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">OK</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="aboutDialog.html">
+        <div class="modal-content" tabindex="-1">
+            <div class="modal-header">
+                <h3 class="modal-title">About</h3>
+            </div>
+            <div class="modal-body">
+                <p>This is a simple web console to manage the private docker image registry, and sync with the Docker Hub. </p>
+                <a href="https://github.com/denverdino/docker-image-registry-console" target="_blank">Home Page of Docker Registry Console</a>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">OK</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="pullImageDialog.html">
+        <div class="modal-content" tabindex="-1">
+            <div class="modal-header">
+                <h3 class="modal-title">Pull image to my registry</h3>
+            </div>
+            <div class="modal-body">
+                <p>Downloading "{{seletedImage}}" ... </p>
+                <p>It will take a while in the background processing.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">OK</button>
+            </div>
+        </div>
+    </script>
+</div>
