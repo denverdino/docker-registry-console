@@ -99,10 +99,10 @@ DockerService.prototype.syncImage = function(repo, tag, registryHost) {
     var that = this;
     return this.pull(repo, tag).then(function(){
         task.update("running", "Tagging " + imageTag);
-        that.tag(repo, tag, registryHost);
+        return that.tag(repo, tag, registryHost);
     }).then(function(){
         task.update("running", "Pushing " + imageTag);
-        that.push(registryHost + "/" + repo, tag);
+        return that.push(registryHost + "/" + repo, tag);
     }).then(function() {
         task.update("completed", "Import " + imageTag + " completed!");
     }, function (err) {

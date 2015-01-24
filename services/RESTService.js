@@ -19,13 +19,14 @@ var RESTService = function(config) {
     //this.log = true;
 };
 
-RESTService.prototype.buildRequestOptions = function(path, query) {
-    var options = {
-        url: this.baseURL + path + ((query && query != '') ? '?' + query : ''),
-        headers: {
-            'Accept': 'application/json'
-        }
+RESTService.prototype.buildRequestOptions = function(path, query, options) {
+    if (!options) options = {};
+
+    options.url = this.baseURL + path + ((query && query != '') ? '?' + query : '');
+    options.headers = {
+        'Accept': 'application/json'
     };
+
     if (this.token) {
         options.headers['Authorization'] = 'Token ' + this.token;
     } else if (this.authorizationHeader) {
@@ -37,7 +38,8 @@ RESTService.prototype.buildRequestOptions = function(path, query) {
 };
 
 RESTService.prototype.GET = function(path, query) {
-    return this.sendRequest('GET', path, query);
+    var options = {};
+    return this.sendRequest('GET', path, query, options);
 };
 
 RESTService.prototype.POST = function(path) {
@@ -52,9 +54,15 @@ RESTService.prototype.DELETE = function(path) {
     return this.sendRequest('DELETE', path);
 };
 
-RESTService.prototype.sendRequest = function(method, path, query) {
+RESTService.prototype.cleanCache = function(path) {
+    var options = this.buildRequestOptions(path);
+    console.log('Delete URL: %s', options.url);
+    cachingService.delete(options.url);
+};
 
-    var options = this.buildRequestOptions(path, query);
+RESTService.prototype.sendRequest = function(method, path, query, options) {
+
+    var options = this.buildRequestOptions(path, query, options);
     options.method = method;
     var log = this.log;
 

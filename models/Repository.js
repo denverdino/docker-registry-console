@@ -115,7 +115,11 @@ Repository.prototype.details = function(repository, service, withSize) {
 };
 
 Repository.prototype.deleteTag = function(tag) {
-    return this.service.DELETE('/repositories/' + this.id + '/tags/' + tag);
+    var that = this;
+    return this.service.DELETE('/repositories/' + this.id + '/tags/' + tag).then(function (result) {
+        that.service.cleanCache('/repositories/' + that.id + '/tags');
+        return result;
+    });
 };
 
 module.exports = Repository;

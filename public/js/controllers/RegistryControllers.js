@@ -4,10 +4,12 @@ function handleSearchRequest($scope, dockerRegistryService, searchFunc) {
     $scope.totalItems = 0;
     $scope.maxSize = 10;
     $scope.isReady = false;
+    $scope.searchFunc = dockerRegistryService[searchFunc];
+
 
     $scope.search = function () {
         $scope.isReady = false;
-        dockerRegistryService[searchFunc]($scope.searchTerm).then(function(items) {
+        $scope.searchFunc($scope.searchTerm).then(function(items) {
             $scope.isReady = true;
             $scope.allItems = angular.copy(items);
             $scope.pagination(items, pageSize);
@@ -62,6 +64,7 @@ function handlePullImage($scope, $modal, dockerRegistryService) {
     };
 }
 
+var UPDATE_IMAGE_LIST = 'UPDATE_IMAGE_LIST';
 
 MetronicApp.factory('dockerRegistryService', ['$http', function($http) {
         var dockerRegistryService = {
@@ -211,8 +214,12 @@ MetronicApp.factory('dockerRegistryService', ['$http', function($http) {
             { title:'Dynamic Title 2', content:'Dynamic content 2' }
         ];
     })
-    .controller('imagesController', ['$scope', '$modal', 'dockerRegistryService', function($scope, $modal, dockerRegistryService) {
+    .controller('imagesController', ['$scope', '$modal', '$rootScope', 'dockerRegistryService', function($scope, $modal, $rootScope, dockerRegistryService) {
         handleSearchRequest($scope, dockerRegistryService, 'searchImages');
+        $scope.$on(UPDATE_IMAGE_LIST, function (event, value) {
+            console.log("Receive notification of broadcast UPDATE_IMAGE_LIST");
+            $scope.search();
+        });
         $scope.openDeletionDialog = function (imageName, tag, displayName) {
 
             var modalInstance = $modal.open({
@@ -228,8 +235,10 @@ MetronicApp.factory('dockerRegistryService', ['$http', function($http) {
             });
 
             modalInstance.result.then(function (confirmed) {
-                dockerRegistryService.deleteRepoTag(imageName, tag);
-                console.log('Modal confirmed at: ' + new Date());
+                dockerRegistryService.deleteRepoTag(imageName, tag).then(function() {
+                    console.log("Broadcast UPDATE_IMAGE_LIST");
+                    $rootScope.$broadcast(UPDATE_IMAGE_LIST, {});
+                });
             }, function () {
                 console.log('Modal dismissed at: ' + new Date());
             });
