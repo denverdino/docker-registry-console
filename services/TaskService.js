@@ -5,11 +5,6 @@ var Task = require('../models/Task');
 
 var TaskService = function() {
     this.queue = [];
-    this.newTask("test", "test", "Just for testing");
-    this.newTask("running", "running", "Just for testing2");
-    this.newTask("completed", "completed", "Just for testing2");
-    this.newTask("failed", "failed", "Just for testing2");
-
 };
 
 TaskService.prototype.newTask = function(name, status, message) {
