@@ -124,6 +124,15 @@ MetronicApp.factory('dockerRegistryService', ['$http', function($http) {
                     }).then(function (response){
                         return response.data
                     });
+            },
+            listTasks: function() {
+                return $http(
+                    {
+                        method: 'GET',
+                        url: '/resources/tasks'
+                    }).then(function (response){
+                        return response.data
+                    });
             }
         };
         return dockerRegistryService;
@@ -265,6 +274,39 @@ MetronicApp.factory('dockerRegistryService', ['$http', function($http) {
         });
         handlePullImage($scope, $modal, dockerRegistryService);
     }])
+    .controller('tasksController', ['$scope', '$interval', 'dockerRegistryService', function ($scope, $interval, dockerRegistryService) {
+        $scope.tasks = [];
+        $scope.getLabel = function(task) {
+          if (task.status === "completed") {
+              return "label-success"
+          } else if (task.status === "failed") {
+              return "label-danger";
+          } else if (task.status === "running") {
+              return "label-primary";
+          } else {
+              return "label-info";
+          }
+        };
+        $scope.getIcon = function(task) {
+            if (task.status === "completed") {
+                return "fa-check-circle"
+            } else if (task.status === "failed") {
+                return "fa-exclamation-triangle";
+            } else if (task.status === "running") {
+                return "fa-chevron-circle-right";
+            } else {
+                return "fa-info-circle";
+            }
+        };
+        var updateTasks = function(){
+            $interval(function(){
+                dockerRegistryService.listTasks().then(function(tasks) {
+                    $scope.tasks = tasks;
+                })
+            },5000);
+        };
+        updateTasks();
+    }])
     .controller('deleteImageDialogController', function ($scope, $modalInstance, image) {
 
         $scope.seletedImage = image;
@@ -319,6 +361,7 @@ MetronicApp.factory('dockerRegistryService', ['$http', function($http) {
         $scope.ok = function () {
             $modalInstance.dismiss('ok');
         };
-    });
+    })
+;
 
 

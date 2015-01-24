@@ -28,9 +28,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 var routes = require('./routes/index');
 var resources_images = require('./routes/resources/images');
 var resources_repositories = require('./routes/resources/repositories');
+var resources_tasks = require('./routes/resources/tasks');
 
 //var users = require('./routes/users');
-
+app.use('/resources/tasks', resources_tasks);
 app.use('/resources/registries/private/images', resources_images);
 app.use('/resources/registries/private/repositories', resources_repositories(false));
 app.use('/resources/registries/public/repositories', resources_repositories(true));
