@@ -14,9 +14,9 @@ Install Redis [http://redis.io/](http://redis.io/)
 
 **Setup** 
 
-	git clone https://github.com/denverdino/docker-image-registry-console.git
+	git clone https://github.com/denverdino/docker-registry-console.git
 	npm install bower -g
-	cd docker-image-registry-console/
+	cd docker-registry-console/
 	npm install
 	bower install
 		
@@ -41,12 +41,12 @@ Run as Docker Container
 
 Install the docker [https://docs.docker.com/installation/](https://docs.docker.com/installation/)
 
-Install the fig [http://www.fig.sh/](http://www.fig.sh/)
+Install the docker-compose [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
 
 **Config** 
 
 
-Update the fig.yml according to your environment setting. 
+Update the docker-compose.yml according to your environment setting. 
 
 ```
 web:
@@ -82,7 +82,7 @@ Add "127.0.0.1 registry" to /etc/hosts
 
 **Run** 	
 
-	fig up
+	docker-compose up
 
 To-do
 -----
